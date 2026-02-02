@@ -16,7 +16,7 @@ from functools import wraps
 class LRUCache:
     """LRU (Least Recently Used) 快取"""
     
-    def __init__(self, max_size=1000, default_ttl=300):
+    def __init__(self, max_size=1000, default_ttl=300) -> None:
         """
         Args:
             max_size: 最大快取數量
@@ -27,7 +27,7 @@ class LRUCache:
         self.cache = OrderedDict()
         self.lock = threading.Lock()
     
-    def get(self, key):
+    def get(self, key: Any) -> Any:
         """取得快取值"""
         with self.lock:
             if key not in self.cache:
@@ -75,7 +75,7 @@ class LRUCache:
         with self.lock:
             self.cache.clear()
     
-    def cleanup(self):
+    def cleanup(self) -> None:
         """清理過期項目"""
         with self.lock:
             now = time.time()
@@ -85,7 +85,7 @@ class LRUCache:
                 del self.cache[k]
             return len(expired)
     
-    def stats(self):
+    def stats(self) -> Dict[str, Any]:
         """快取統計"""
         with self.lock:
             return {
@@ -124,12 +124,12 @@ def cached(ttl: int = 300, key_prefix: str = '', cache_name: str = 'default') ->
     
     用法：
         @cached(ttl=60, key_prefix='stats')
-        def get_stats(tenant_id):
+        def get_stats(tenant_id) -> Any:
             ...
     """
-    def decorator(func):
+    def decorator(func) -> Any:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             # 產生快取鍵
             cache_key = f"{key_prefix}:{func.__name__}"
             if args:

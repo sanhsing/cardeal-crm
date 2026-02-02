@@ -4,6 +4,8 @@
 
 功能：處理檔案上傳（圖片、文件）
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import json
 import re
 from .base import BaseHandler

@@ -20,7 +20,7 @@ import config
 class JsonFormatter(logging.Formatter):
     """JSON 格式化器（便於日誌分析）"""
     
-    def format(self, record):
+    def format(self, record: Any) -> Any:
         log_data = {
             'timestamp': datetime.utcnow().isoformat() + 'Z',
             'level': record.levelname,
@@ -64,7 +64,7 @@ class ColoredFormatter(logging.Formatter):
     }
     RESET = '\033[0m'
     
-    def format(self, record):
+    def format(self, record: Any) -> Any:
         color = self.COLORS.get(record.levelname, '')
         record.levelname = f"{color}{record.levelname}{self.RESET}"
         return super().format(record)
@@ -199,11 +199,11 @@ def log_debug(message: str, **kwargs) -> None:
 class RequestLogger:
     """請求日誌記錄器"""
     
-    def __init__(self, logger_name='cardeal.request'):
+    def __init__(self, logger_name='cardeal.request') -> None:
         self.logger = get_logger(logger_name)
     
     def log_request(self, method, path, status_code, duration_ms, 
-                    client_ip=None, user_id=None, tenant_id=None):
+                    client_ip=None, user_id=None, tenant_id=None) -> None:
         """記錄 HTTP 請求"""
         self.logger.info(
             f'{method} {path} {status_code} {duration_ms:.1f}ms',
@@ -224,11 +224,11 @@ class RequestLogger:
 class AuditLogger:
     """審計日誌記錄器（記錄重要操作）"""
     
-    def __init__(self, logger_name='cardeal.audit'):
+    def __init__(self, logger_name='cardeal.audit') -> None:
         self.logger = get_logger(logger_name)
     
     def log_action(self, action, target_type, target_id, 
-                   user_id, tenant_id, details=None):
+                   user_id, tenant_id, details=None) -> None:
         """記錄使用者操作"""
         self.logger.info(
             f'[AUDIT] {action} {target_type}:{target_id}',
@@ -242,7 +242,7 @@ class AuditLogger:
             }
         )
     
-    def log_login(self, user_id, tenant_id, client_ip, success=True):
+    def log_login(self, user_id, tenant_id, client_ip, success=True) -> None:
         """記錄登入"""
         status = 'success' if success else 'failed'
         self.logger.info(
@@ -261,10 +261,10 @@ class AuditLogger:
 class PerformanceLogger:
     """效能日誌記錄器"""
     
-    def __init__(self, logger_name='cardeal.perf'):
+    def __init__(self, logger_name='cardeal.perf') -> None:
         self.logger = get_logger(logger_name)
     
-    def log_slow_query(self, sql, duration_ms, threshold=100):
+    def log_slow_query(self, sql, duration_ms, threshold=100) -> None:
         """記錄慢查詢"""
         if duration_ms > threshold:
             self.logger.warning(
@@ -275,7 +275,7 @@ class PerformanceLogger:
                 }
             )
     
-    def log_slow_request(self, path, duration_ms, threshold=1000):
+    def log_slow_request(self, path, duration_ms, threshold=1000) -> None:
         """記錄慢請求"""
         if duration_ms > threshold:
             self.logger.warning(

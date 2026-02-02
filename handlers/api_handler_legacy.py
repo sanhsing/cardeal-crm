@@ -8,7 +8,7 @@ import json
 import sqlite3
 from models import get_connection, log_activity
 
-def handle_get(router, path, query, session):
+def handle_get(router, path, query, session) -> Dict[str, Any]:
     """處理 GET API 請求"""
     db_path = session['data']['db_path']
     
@@ -39,7 +39,7 @@ def handle_get(router, path, query, session):
     else:
         router.send_json({'error': 'API Not Found'}, 404)
 
-def handle_post(router, path, data, session):
+def handle_post(router, path, data, session) -> Dict[str, Any]:
     """處理 POST API 請求"""
     db_path = session['data']['db_path']
     user_id = session['data']['user_id']
@@ -72,7 +72,7 @@ def handle_post(router, path, data, session):
 
 # ===== 客戶 API =====
 
-def get_customers(router, db_path, query):
+def get_customers(router, db_path, query) -> Any:
     """取得客戶列表"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -112,7 +112,7 @@ def get_customers(router, db_path, query):
         'total': total
     })
 
-def create_customer(router, db_path, data, user_id, user_name):
+def create_customer(router, db_path, data, user_id, user_name) -> Any:
     """建立客戶"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -132,7 +132,7 @@ def create_customer(router, db_path, data, user_id, user_name):
     
     router.send_json({'success': True, 'id': customer_id})
 
-def update_customer(router, db_path, customer_id, data, user_id, user_name):
+def update_customer(router, db_path, customer_id, data, user_id, user_name) -> bool:
     """更新客戶"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -162,7 +162,7 @@ def update_customer(router, db_path, customer_id, data, user_id, user_name):
 
 # ===== 車輛 API =====
 
-def get_vehicles(router, db_path, query):
+def get_vehicles(router, db_path, query) -> Any:
     """取得車輛列表"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -201,7 +201,7 @@ def get_vehicles(router, db_path, query):
         'vehicles': vehicles
     })
 
-def create_vehicle(router, db_path, data, user_id, user_name):
+def create_vehicle(router, db_path, data, user_id, user_name) -> Any:
     """建立車輛"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -233,7 +233,7 @@ def create_vehicle(router, db_path, data, user_id, user_name):
     
     router.send_json({'success': True, 'id': vehicle_id})
 
-def update_vehicle(router, db_path, vehicle_id, data, user_id, user_name):
+def update_vehicle(router, db_path, vehicle_id, data, user_id, user_name) -> bool:
     """更新車輛"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -272,7 +272,7 @@ def update_vehicle(router, db_path, vehicle_id, data, user_id, user_name):
 
 # ===== 交易 API =====
 
-def get_deals(router, db_path, query):
+def get_deals(router, db_path, query) -> Any:
     """取得交易列表"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -292,7 +292,7 @@ def get_deals(router, db_path, query):
         'deals': deals
     })
 
-def create_deal(router, db_path, data, user_id, user_name):
+def create_deal(router, db_path, data, user_id, user_name) -> Any:
     """建立交易"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -335,7 +335,7 @@ def create_deal(router, db_path, data, user_id, user_name):
 
 # ===== 統計 API =====
 
-def get_stats(router, db_path):
+def get_stats(router, db_path) -> Any:
     """取得統計數據"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -380,7 +380,7 @@ def get_stats(router, db_path):
 
 # ===== 跟進 API =====
 
-def get_followups(router, db_path, query):
+def get_followups(router, db_path, query) -> Any:
     """取得跟進記錄"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -410,7 +410,7 @@ def get_followups(router, db_path, query):
         'followups': followups
     })
 
-def create_followup(router, db_path, data, user_id, user_name):
+def create_followup(router, db_path, data, user_id, user_name) -> Any:
     """建立跟進記錄"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -437,7 +437,7 @@ def create_followup(router, db_path, data, user_id, user_name):
 
 # ===== 日誌 API =====
 
-def get_logs(router, db_path, query):
+def get_logs(router, db_path, query) -> Any:
     """取得活動日誌"""
     conn = get_connection(db_path)
     c = conn.cursor()

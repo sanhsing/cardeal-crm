@@ -36,7 +36,7 @@ class ConnectionPool:
     - 統一連接配置
     """
     
-    def __init__(self, db_path: str, max_connections: int = 10, timeout: float = 30.0):
+    def __init__(self, db_path: str, max_connections: int = 10, timeout: float = 30.0) -> None:
         """
         Args:
             db_path: 資料庫路徑
@@ -122,7 +122,7 @@ class ConnectionPool:
                 self._created -= 1
     
     @contextmanager
-    def connection(self):
+    def connection(self) -> Any:
         """連接上下文管理器"""
         conn = self.get_connection()
         try:
@@ -140,7 +140,7 @@ class ConnectionPool:
             'hit_rate': round(self.stats['pool_hits'] / max(self.stats['total_requests'], 1) * 100, 2)
         }
     
-    def close_all(self):
+    def close_all(self) -> Any:
         """關閉所有連接"""
         while not self._pool.empty():
             try:
@@ -181,7 +181,7 @@ class QueryStats:
 class QueryAnalyzer:
     """查詢分析器"""
     
-    def __init__(self, slow_threshold: float = 0.5):
+    def __init__(self, slow_threshold: float = 0.5) -> None:
         """
         Args:
             slow_threshold: 慢查詢閾值（秒）
@@ -248,7 +248,7 @@ _query_analyzer = QueryAnalyzer()
 def timed_query(func: Callable) -> Callable:
     """查詢計時裝飾器"""
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         start = time.perf_counter()
         try:
             result = func(*args, **kwargs)
@@ -268,7 +268,7 @@ def timed_query(func: Callable) -> Callable:
 class IndexAdvisor:
     """索引建議器"""
     
-    def __init__(self, conn: sqlite3.Connection):
+    def __init__(self, conn: sqlite3.Connection) -> None:
         self.conn = conn
     
     def analyze_table(self, table_name: str) -> Dict:
@@ -364,7 +364,7 @@ class IndexAdvisor:
 class BatchExecutor:
     """批量執行器"""
     
-    def __init__(self, conn: sqlite3.Connection, batch_size: int = 1000):
+    def __init__(self, conn: sqlite3.Connection, batch_size: int = 1000) -> None:
         self.conn = conn
         self.batch_size = batch_size
     
@@ -459,7 +459,7 @@ class BatchExecutor:
 class PerformanceMonitor:
     """效能監控器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.metrics = {
             'requests': 0,
             'errors': 0,
@@ -497,7 +497,7 @@ class PerformanceMonitor:
                 'db_time_pct': round(self.metrics['db_time'] / max(self.metrics['total_time'], 0.001) * 100, 2)
             }
     
-    def reset(self):
+    def reset(self) -> None:
         """重置指標"""
         with self._lock:
             self.metrics = {
@@ -520,7 +520,7 @@ _performance_monitor = PerformanceMonitor()
 class SlowQueryLogger:
     """慢查詢記錄器"""
     
-    def __init__(self, threshold_ms: float = 100.0):
+    def __init__(self, threshold_ms: float = 100.0) -> None:
         self.threshold_ms = threshold_ms
         self._logs: List[Dict] = []
         self._stats = {
@@ -569,7 +569,7 @@ class SlowQueryLogger:
         """獲取慢查詢日誌"""
         return self._logs[-limit:]
     
-    def clear(self):
+    def clear(self) -> None:
         """清除日誌"""
         self._logs = []
         self._stats = {

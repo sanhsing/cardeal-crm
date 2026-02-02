@@ -91,7 +91,7 @@ def get_tenant_by_id(tenant_id: int) -> Optional[Dict[str, Any]]:
     conn.close()
     return dict(tenant) if tenant else None
 
-def create_tenant(code: str, name: str, admin_phone: str, admin_password: str, admin_name: str ='管理員'):
+def create_tenant(code: str, name: str, admin_phone: str, admin_password: str, admin_name: str ='管理員') -> Any:
     """建立新租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()

@@ -19,11 +19,11 @@ import config
 class MetricsCollector:
     """效能指標收集器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.reset()
         self.lock = threading.Lock()
     
-    def reset(self):
+    def reset(self) -> None:
         """重設指標"""
         self._start_time = time.time()
         self._request_count = 0
@@ -47,7 +47,7 @@ class MetricsCollector:
             self._endpoints[endpoint]['count'] += 1
             self._endpoints[endpoint]['total_time'] += duration_ms
     
-    def _normalize_path(self, path):
+    def _normalize_path(self, path: Any) -> Any:
         """正規化路徑（去除 ID）"""
         parts = path.split('/')
         normalized = []
@@ -58,7 +58,7 @@ class MetricsCollector:
                 normalized.append(part)
         return '/'.join(normalized)
     
-    def get_metrics(self):
+    def get_metrics(self) -> Dict[str, Any]:
         """取得指標"""
         with self.lock:
             uptime = time.time() - self._start_time
@@ -112,7 +112,7 @@ class MetricsCollector:
                 ]
             }
     
-    def _format_uptime(self, seconds):
+    def _format_uptime(self, seconds: Any) -> Any:
         """格式化運行時間"""
         days = int(seconds // 86400)
         hours = int((seconds % 86400) // 3600)
@@ -133,21 +133,21 @@ class MetricsCollector:
 class HealthChecker:
     """健康檢查器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.checks = {}
         self.register_default_checks()
     
-    def register_check(self, name, check_func):
+    def register_check(self, name: Any, check_func: Any) -> Any:
         """註冊檢查項目"""
         self.checks[name] = check_func
     
-    def register_default_checks(self):
+    def register_default_checks(self) -> Any:
         """註冊預設檢查"""
         self.register_check('disk', self._check_disk)
         self.register_check('memory', self._check_memory)
         self.register_check('database', self._check_database)
     
-    def run_checks(self):
+    def run_checks(self) -> None:
         """執行所有檢查"""
         results = {}
         overall_healthy = True
@@ -171,7 +171,7 @@ class HealthChecker:
             'checks': results
         }
     
-    def _check_disk(self):
+    def _check_disk(self) -> Dict[str, Any]:
         """檢查磁碟空間"""
         try:
             stat = os.statvfs(config.DATA_DIR)
@@ -189,7 +189,7 @@ class HealthChecker:
         except:
             return {'healthy': True, 'note': 'Unable to check disk'}
     
-    def _check_memory(self):
+    def _check_memory(self) -> Dict[str, Any]:
         """檢查記憶體"""
         try:
             with open('/proc/meminfo', 'r') as f:
@@ -214,7 +214,7 @@ class HealthChecker:
         except:
             return {'healthy': True, 'note': 'Unable to check memory'}
     
-    def _check_database(self):
+    def _check_database(self) -> Dict[str, Any]:
         """檢查資料庫"""
         try:
             if not os.path.exists(config.MASTER_DB):

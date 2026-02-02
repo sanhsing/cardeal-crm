@@ -26,12 +26,12 @@ from . import batch_handler
 class Router(BaseHTTPRequestHandler):
     """主路由處理器"""
     
-    def log_message(self, format, *args):
+    def log_message(self, format, *args) -> None:
         """控制日誌輸出"""
         if config.DEBUG:
             print(f"[{self.log_date_time_string()}] {args[0]}")
     
-    def do_OPTIONS(self):
+    def do_OPTIONS(self) -> None:
         """處理 CORS 預檢"""
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -39,7 +39,7 @@ class Router(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         self.end_headers()
     
-    def do_GET(self):
+    def do_GET(self) -> None:
         """處理 GET 請求"""
         path = urlparse(self.path).path
         
@@ -70,7 +70,7 @@ class Router(BaseHTTPRequestHandler):
         # 404
         BaseHandler.send_html(self, '<h1>404 Not Found</h1>', 404)
     
-    def do_POST(self):
+    def do_POST(self) -> None:
         """處理 POST 請求"""
         path = urlparse(self.path).path
         
@@ -99,23 +99,23 @@ class Router(BaseHTTPRequestHandler):
     
     # ===== 頁面渲染 =====
     
-    def _page_landing(self):
+    def _page_landing(self) -> Dict[str, Any]:
         from templates import landing
         BaseHandler.send_html(self, landing.render())
     
-    def _page_app(self):
+    def _page_app(self) -> Dict[str, Any]:
         from templates import app
         BaseHandler.send_html(self, app.render())
     
-    def _page_privacy(self):
+    def _page_privacy(self) -> Dict[str, Any]:
         from templates import privacy
         BaseHandler.send_html(self, privacy.render())
     
-    def _page_terms(self):
+    def _page_terms(self) -> Dict[str, Any]:
         from templates import terms
         BaseHandler.send_html(self, terms.render())
     
-    def _page_line_bind(self):
+    def _page_line_bind(self) -> Dict[str, Any]:
         query = parse_qs(urlparse(self.path).query)
         tenant = query.get('tenant', [''])[0]
         token = query.get('token', [''])[0]
@@ -124,7 +124,7 @@ class Router(BaseHTTPRequestHandler):
     
     # ===== 靜態資源 =====
     
-    def _serve_static(self, path):
+    def _serve_static(self, path: Any) -> Any:
         """提供靜態資源"""
         base_dir = os.path.dirname(os.path.dirname(__file__))
         file_path = os.path.join(base_dir, path[1:])  # 去掉開頭的 /
@@ -155,7 +155,7 @@ class Router(BaseHTTPRequestHandler):
         
         BaseHandler.send_static(self, content, content_type)
     
-    def _serve_uploads(self, path):
+    def _serve_uploads(self, path: Any) -> Any:
         """提供上傳的檔案"""
         # /uploads/{tenant}/{category}/{year}/{month}/{filename}
         # 映射到 data/uploads/...
@@ -196,7 +196,7 @@ class Router(BaseHTTPRequestHandler):
     
     # ===== API 路由分發 =====
     
-    def _route_api_get(self, path):
+    def _route_api_get(self, path: Any) -> Any:
         """分發 GET API"""
         # 健康檢查（不需登入）
         if path == '/api/health':
@@ -271,7 +271,7 @@ class Router(BaseHTTPRequestHandler):
         
         BaseHandler.send_json(self, {'error': 'API Not Found'}, 404)
     
-    def _route_api_post(self, path):
+    def _route_api_post(self, path: Any) -> Any:
         """分發 POST API"""
         session = BaseHandler.require_auth(self)
         if not session:
@@ -332,13 +332,13 @@ class Router(BaseHTTPRequestHandler):
     
     # ===== 圖表數據處理 =====
     
-    def _get_dashboard_charts(self, db_path):
+    def _get_dashboard_charts(self, db_path: Any) -> Any:
         """取得儀表板圖表數據"""
         from services.chart_service import get_dashboard_data
         data = get_dashboard_data(db_path)
         BaseHandler.send_json(self, {'success': True, 'charts': data})
     
-    def _get_sales_chart(self, db_path, query):
+    def _get_sales_chart(self, db_path: Any, query: Any) -> Any:
         """取得銷售圖表"""
         from services.chart_service import get_sales_trend, get_monthly_comparison
         days = int(query.get('days', [30])[0])
@@ -348,7 +348,7 @@ class Router(BaseHTTPRequestHandler):
         }
         BaseHandler.send_json(self, {'success': True, 'charts': data})
     
-    def _get_inventory_chart(self, db_path):
+    def _get_inventory_chart(self, db_path: Any) -> Any:
         """取得庫存圖表"""
         from services.chart_service import (
             get_inventory_by_brand, get_inventory_by_status, get_inventory_age
@@ -360,7 +360,7 @@ class Router(BaseHTTPRequestHandler):
         }
         BaseHandler.send_json(self, {'success': True, 'charts': data})
     
-    def _get_customer_chart(self, db_path):
+    def _get_customer_chart(self, db_path: Any) -> Any:
         """取得客戶圖表"""
         from services.chart_service import (
             get_customer_by_source, get_customer_by_level, get_customer_growth
@@ -372,7 +372,7 @@ class Router(BaseHTTPRequestHandler):
         }
         BaseHandler.send_json(self, {'success': True, 'charts': data})
     
-    def _get_reminders(self, db_path):
+    def _get_reminders(self, db_path: Any) -> Any:
         """取得待處理提醒"""
         from services.reminder_service import get_pending_reminders
         data = get_pending_reminders(db_path)
@@ -380,13 +380,13 @@ class Router(BaseHTTPRequestHandler):
     
     # ===== Webhook 處理 =====
     
-    def _handle_line_webhook(self):
+    def _handle_line_webhook(self) -> Dict[str, Any]:
         """處理 LINE Webhook"""
         body = BaseHandler.get_body(self)
         signature = self.headers.get('X-Line-Signature', '')
         webhook_handler.handle_line(self, body, signature)
     
-    def _handle_ecpay_notify(self):
+    def _handle_ecpay_notify(self) -> Dict[str, Any]:
         """處理 ECPay 回調"""
         from services import ecpay_service
         body = BaseHandler.get_body(self).decode('utf-8')
@@ -425,7 +425,7 @@ class Router(BaseHTTPRequestHandler):
 
 
 # 文檔路由
-def _register_docs_routes(router):
+def _register_docs_routes(router) -> Any:
     """註冊文檔路由"""
     from handlers.docs_handler import DocsHandler
     handler = DocsHandler()

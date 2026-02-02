@@ -32,7 +32,7 @@ OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 class AIProvider:
     """AI 服務提供者"""
     
-    def __init__(self, provider: str = 'deepseek'):
+    def __init__(self, provider: str = 'deepseek') -> None:
         """
         Args:
             provider: 'deepseek' | 'openai'
@@ -108,7 +108,7 @@ class AIProvider:
 ai = AIProvider('deepseek')
 
 
-def set_provider(provider: str):
+def set_provider(provider: str) -> None:
     """切換 AI 提供者"""
     global ai
     ai = AIProvider(provider)

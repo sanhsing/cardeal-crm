@@ -12,7 +12,7 @@ import time
 import os
 import json
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
 
 
 # ============================================================
@@ -22,7 +22,7 @@ from typing import Dict, List, Optional
 class APIDocGenerator:
     """API 文檔生成器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.endpoints = []
     
     def register(self, method: str, path: str, handler: str,
@@ -177,7 +177,7 @@ class APIDocGenerator:
 _api_doc = APIDocGenerator()
 
 # 註冊所有 API
-def _register_all_apis():
+def _register_all_apis() -> Any:
     """註冊所有 API 端點"""
     
     # ===== 認證 =====
@@ -308,7 +308,7 @@ def get_api_doc_openapi() -> Dict:
 class HealthChecker:
     """健康檢查器"""
     
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str = None) -> None:
         self.db_path = db_path
         self._start_time = time.time()
     

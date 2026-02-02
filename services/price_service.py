@@ -13,7 +13,7 @@ from models import get_connection
 
 # ===== 內部估價 =====
 
-def estimate_price(brand, model, year, mileage, condition='good'):
+def estimate_price(brand: str, model: str, year: int, mileage: int, condition: str ='good'):
     """根據車輛資訊估價
     
     Args:
@@ -92,7 +92,7 @@ def estimate_price(brand, model, year, mileage, condition='good'):
     }
 
 
-def _get_base_price(brand, model):
+def _get_base_price(brand: str, model: str) -> Any:
     """取得基礎參考價格"""
     # 常見車款參考價（新車價）
     price_db = {
@@ -130,7 +130,7 @@ def _get_base_price(brand, model):
 
 # ===== 歷史行情 =====
 
-def get_price_history(db_path, brand=None, model=None, months=6):
+def get_price_history(db_path, brand=None, model=None, months=6) -> Any:
     """取得歷史成交價格"""
     conn = get_connection(db_path)
     c = conn.cursor()

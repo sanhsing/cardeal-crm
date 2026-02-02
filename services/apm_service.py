@@ -89,7 +89,7 @@ class Span:
 class Tracer:
     """分散式追蹤器"""
     
-    def __init__(self, service_name: str = 'cardeal-crm', max_spans: int = 1000):
+    def __init__(self, service_name: str = 'cardeal-crm', max_spans: int = 1000) -> None:
         self.service_name = service_name
         self.max_spans = max_spans
         self._spans: deque = deque(maxlen=max_spans)
@@ -131,7 +131,7 @@ class Tracer:
             self._spans.append(span)
     
     @contextmanager
-    def trace(self, operation: str, **tags):
+    def trace(self, operation: str, **tags) -> Any:
         """追蹤上下文管理器"""
         span = self.start_span(operation, tags=tags)
         try:
@@ -166,25 +166,25 @@ tracer = Tracer()
 class MetricsRegistry:
     """指標註冊器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._counters: Dict[str, int] = {}
         self._gauges: Dict[str, float] = {}
         self._histograms: Dict[str, List[float]] = {}
         self._lock = threading.Lock()
     
-    def counter(self, name: str, value: int = 1, labels: Dict[str, str] = None) -> None:
+    def counter(self, name: str, value: int = 1, labels: Optional[Dict[str, str]] = None) -> None:
         """計數器"""
         key = self._make_key(name, labels)
         with self._lock:
             self._counters[key] = self._counters.get(key, 0) + value
     
-    def gauge(self, name: str, value: float, labels: Dict[str, str] = None) -> None:
+    def gauge(self, name: str, value: float, labels: Optional[Dict[str, str]] = None) -> None:
         """即時值"""
         key = self._make_key(name, labels)
         with self._lock:
             self._gauges[key] = value
     
-    def histogram(self, name: str, value: float, labels: Dict[str, str] = None) -> None:
+    def histogram(self, name: str, value: float, labels: Optional[Dict[str, str]] = None) -> None:
         """直方圖"""
         key = self._make_key(name, labels)
         with self._lock:
@@ -251,7 +251,7 @@ class AlertRule:
 class AlertManager:
     """告警管理器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._rules: List[AlertRule] = []
         self._alerts: deque = deque(maxlen=100)
         self._lock = threading.Lock()
@@ -328,13 +328,13 @@ alerts = AlertManager()
 # 5. 裝飾器
 # ============================================================
 
-def traced(operation: str = None):
+def traced(operation: Optional[str] = None) -> Callable:
     """追蹤裝飾器"""
     def decorator(func: Callable) -> Callable:
         op_name = operation or func.__name__
         
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             with tracer.trace(op_name) as span:
                 span.set_tag('function', func.__name__)
                 result = func(*args, **kwargs)
@@ -344,13 +344,13 @@ def traced(operation: str = None):
     return decorator
 
 
-def timed(metric_name: str = None):
+def timed(metric_name: Optional[str] = None) -> Callable:
     """計時裝飾器"""
     def decorator(func: Callable) -> Callable:
         name = metric_name or f'{func.__module__}.{func.__name__}'
         
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             start = time.time()
             try:
                 result = func(*args, **kwargs)

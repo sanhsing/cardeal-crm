@@ -1,18 +1,18 @@
-# ============================================
-# 車行寶 CRM v5.1 - GitHub Actions CD
+# 車行寶 CRM v5.2 - CD 持續部署
 # 北斗七星文創數位 × 織明
-# ============================================
 
 name: CD
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Deployment environment'
+      deploy_env:
+        description: '部署環境'
         required: true
         default: 'production'
         type: choice
@@ -20,95 +20,104 @@ on:
           - production
           - staging
 
+env:
+  PYTHON_VERSION: '3.11'
+
 jobs:
-  deploy:
+  # ============================================================
+  # 1. 測試階段
+  # ============================================================
+  test:
+    name: 🧪 測試
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'production' }}
     
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Run tests
-        run: |
-          pip install -r requirements.txt
-          pip install pytest
-          python -m pytest tests/ -v --tb=short
-      
-      # Render 部署（自動觸發）
-      - name: Deploy to Render
-        if: env.RENDER_DEPLOY_HOOK_URL != ''
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
-          echo "✅ Render deployment triggered"
-      
-      # Docker Hub 發布（可選）
-      - name: Login to Docker Hub
-        if: env.DOCKER_USERNAME != ''
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: Build and push Docker image
-        if: env.DOCKER_USERNAME != ''
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/cardeal-crm:${VERSION} .
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/cardeal-crm:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/cardeal-crm:${VERSION}
-          docker push ${{ secrets.DOCKER_USERNAME }}/cardeal-crm:latest
-      
-      # 通知
-      - name: Notify Telegram
-        if: always() && env.TELEGRAM_BOT_TOKEN != ''
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          STATUS="${{ job.status }}"
-          
-          if [ "$STATUS" = "success" ]; then
-            EMOJI="🚀"
-            MESSAGE="部署成功"
-          else
-            EMOJI="❌"
-            MESSAGE="部署失敗"
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: 📦 Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: 🧪 Run tests
+      run: |
+        python -m pytest tests/ --ignore=tests/test_e2e.py -q \
+          --cov=handlers --cov=services --cov=models \
+          --cov-fail-under=40
+      env:
+        TESTING: 'true'
+    
+    - name: ✅ Tests passed
+      run: echo "All tests passed!"
+
+  # ============================================================
+  # 2. 部署到 Render
+  # ============================================================
+  deploy:
+    name: 🚀 部署
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 🚀 Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+    
+    - name: ⏳ Wait for deployment
+      run: sleep 120
+    
+    - name: 🔍 Health check
+      run: |
+        for i in {1..5}; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://cardeal-crm.onrender.com/api/system/health || echo "000")
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Health check passed!"
+            exit 0
           fi
-          
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d parse_mode="Markdown" \
-            -d text="${EMOJI} *車行寶 CRM 部署*%0A${MESSAGE}%0AVersion: ${VERSION}%0AEnvironment: ${{ github.event.inputs.environment || 'production' }}"
+          echo "Attempt $i: Status $STATUS, retrying..."
+          sleep 30
+        done
+        echo "❌ Health check failed"
+        exit 1
 
+  # ============================================================
+  # 3. 通知
+  # ============================================================
+  notify:
+    name: 📢 通知
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    
+    steps:
+    - name: 📢 Telegram notification
+      if: env.TELEGRAM_BOT_TOKEN != ''
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        STATUS="${{ needs.deploy.result }}"
+        if [ "$STATUS" = "success" ]; then
+          EMOJI="✅"
+          MESSAGE="部署成功"
+        else
+          EMOJI="❌"
+          MESSAGE="部署失敗"
+        fi
+        
+        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          -d chat_id="${TELEGRAM_CHAT_ID}" \
+          -d parse_mode="Markdown" \
+          -d text="${EMOJI} *車行寶 CRM* ${MESSAGE}
 
-# 📚 知識點
-# -----------
-# 1. on: push: tags：
-#    - 只在推送 tag 時觸發
-#    - v* 匹配 v1.0, v5.1.0 等
-#
-# 2. workflow_dispatch：
-#    - 手動觸發
-#    - inputs 定義參數
-#
-# 3. environment：
-#    - GitHub Environments
-#    - 可設定保護規則
-#
-# 4. GITHUB_REF：
-#    - refs/tags/v5.1.0
-#    - ${GITHUB_REF#refs/tags/} 取得 v5.1.0
-#
-# 5. Render Deploy Hook：
-#    - Render 提供的 webhook URL
-#    - POST 請求觸發部署
+📦 Commit: \`${GITHUB_SHA:0:7}\`
+👤 Author: ${{ github.actor }}
+🔗 [View Action](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"

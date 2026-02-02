@@ -519,7 +519,7 @@ def delete_vehicle(handler, db_path: str, vehicle_id: int, user_id: int, user_na
 # 📚 知識點
 # -----------
 # 1. @property：把方法變成屬性存取
-#    - 定義：@property def total_cost(self): return ...
+#    - 定義：@property def total_cost(self) -> Any: return ...
 #    - 使用：vehicle.total_cost（不是 vehicle.total_cost()）
 #    - 好處：計算欄位不佔儲存空間，存取時才計算
 #

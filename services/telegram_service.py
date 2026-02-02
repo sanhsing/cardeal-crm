@@ -31,7 +31,7 @@ def send_message(text: str, parse_mode: str = 'Markdown') -> bool:
         print(f"Telegram error: {e}")
         return False
 
-def notify_new_tenant(tenant_name: str, tenant_code: str):
+def notify_new_tenant(tenant_name: str, tenant_code: str) -> bool:
     """通知新租戶註冊"""
     text = f"""🏪 *新店家註冊*
 
@@ -41,7 +41,7 @@ def notify_new_tenant(tenant_name: str, tenant_code: str):
 """
     return send_message(text)
 
-def notify_payment(tenant_name: str, plan: str, amount: int):
+def notify_payment(tenant_name: str, plan: str, amount: int) -> bool:
     """通知付款成功"""
     text = f"""💰 *訂閱付款成功*
 
@@ -52,7 +52,7 @@ def notify_payment(tenant_name: str, plan: str, amount: int):
 """
     return send_message(text)
 
-def notify_backup(tenant_count: int, success: bool, details: str = ''):
+def notify_backup(tenant_count: int, success: bool, details: str = '') -> bool:
     """通知備份結果"""
     status = "✅ 成功" if success else "❌ 失敗"
     text = f"""🗄️ *自動備份 {status}*
@@ -63,7 +63,7 @@ def notify_backup(tenant_count: int, success: bool, details: str = ''):
 """
     return send_message(text)
 
-def notify_error(error_type: str, message: str, details: str = ''):
+def notify_error(error_type: str, message: str, details: str = '') -> bool:
     """通知錯誤"""
     text = f"""⚠️ *系統錯誤*
 

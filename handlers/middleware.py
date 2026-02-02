@@ -21,7 +21,7 @@ class RequestLogger:
     """請求日誌記錄器"""
     
     @staticmethod
-    def log_request(handler, start_time, status_code, response_size=0):
+    def log_request(handler, start_time, status_code, response_size=0) -> None:
         """記錄請求日誌"""
         duration = (time.time() - start_time) * 1000  # 毫秒
         
@@ -97,7 +97,7 @@ class ErrorHandler:
     """統一錯誤處理器"""
     
     @staticmethod
-    def handle_exception(handler, exc, include_trace=False):
+    def handle_exception(handler, exc, include_trace=False) -> Dict[str, Any]:
         """處理例外"""
         error_id = f"ERR-{int(time.time())}"
         
@@ -165,13 +165,13 @@ class CORSMiddleware:
     DEFAULT_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
     DEFAULT_HEADERS = ['Content-Type', 'Authorization', 'X-CSRF-Token']
     
-    def __init__(self, origins=None, methods=None, headers=None, credentials=False):
+    def __init__(self, origins=None, methods=None, headers=None, credentials=False) -> None:
         self.origins = origins or self.DEFAULT_ORIGINS
         self.methods = methods or self.DEFAULT_METHODS
         self.headers = headers or self.DEFAULT_HEADERS
         self.credentials = credentials
     
-    def add_cors_headers(self, handler):
+    def add_cors_headers(self, handler: Any) -> Any:
         """添加 CORS 標頭"""
         origin = handler.headers.get('Origin', '*')
         
@@ -205,7 +205,7 @@ class SecurityHeaders:
     }
     
     @staticmethod
-    def add_security_headers(handler):
+    def add_security_headers(handler) -> None:
         """添加安全標頭"""
         for key, value in SecurityHeaders.HEADERS.items():
             handler.send_header(key, value)
@@ -216,7 +216,7 @@ class SecurityHeaders:
 def timed(func):
     """計時裝飾器"""
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         start = time.time()
         result = func(*args, **kwargs)
         duration = (time.time() - start) * 1000
@@ -241,17 +241,17 @@ class RequestContext:
         self.tenant_id = None
         self.errors = []
     
-    def set_user(self, user_id, tenant_id):
+    def set_user(self, user_id: Any, tenant_id: Any) -> Any:
         """設定使用者資訊"""
         self.user_id = user_id
         self.tenant_id = tenant_id
     
-    def add_error(self, error):
+    def add_error(self, error: Any) -> Any:
         """添加錯誤"""
         self.errors.append(error)
     
     @property
-    def duration_ms(self):
+    def duration_ms(self) -> Any:
         """請求耗時（毫秒）"""
         return (time.time() - self.start_time) * 1000
 

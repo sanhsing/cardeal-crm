@@ -14,7 +14,7 @@ import time
 import threading
 import re
 from datetime import datetime
-from typing import Dict, List, Optional, Callable, Tuple
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
 from functools import wraps
 from collections import defaultdict
 
@@ -26,7 +26,7 @@ from collections import defaultdict
 class RateLimiter:
     """滑動窗口限流器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self._buckets = defaultdict(list)
         self._lock = threading.Lock()
         
@@ -41,7 +41,7 @@ class RateLimiter:
             'report': (20, 60),        # 20 次/分鐘（報表）
         }
     
-    def add_rule(self, name: str, requests: int, window_seconds: int):
+    def add_rule(self, name: str, requests: int, window_seconds: int) -> None:
         """添加限流規則"""
         self.rules[name] = (requests, window_seconds)
     
@@ -94,7 +94,7 @@ class RateLimiter:
             'X-RateLimit-Reset': str(info['reset_after'])
         }
     
-    def cleanup(self):
+    def cleanup(self) -> None:
         """清理過期數據"""
         now = time.time()
         with self._lock:
@@ -118,12 +118,12 @@ def rate_limit(rule_name: str = 'default', key_func: Callable = None):
     
     用法：
         @rate_limit('login', key_func=lambda req: req.client_ip)
-        def handle_login(request):
+        def handle_login(request) -> Dict[str, Any]:
             ...
     """
-    def decorator(func):
+    def decorator(func) -> Any:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             # 取得限流鍵
             if key_func:
                 key = key_func(*args, **kwargs)
@@ -178,7 +178,7 @@ class SecurityHeaders:
         'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
     }
     
-    def __init__(self, custom_headers: Dict = None):
+    def __init__(self, custom_headers: Dict = None) -> None:
         self.headers = self.DEFAULT_HEADERS.copy()
         if custom_headers:
             self.headers.update(custom_headers)
@@ -202,7 +202,7 @@ class SecurityHeaders:
         """啟用 HSTS"""
         self.headers['Strict-Transport-Security'] = f'max-age={max_age}; includeSubDomains'
     
-    def set_cors(self, origins: List[str] = None, methods: List[str] = None):
+    def set_cors(self, origins: List[str] = None, methods: List[str] = None) -> None:
         """設定 CORS"""
         if origins:
             self.headers['Access-Control-Allow-Origin'] = ', '.join(origins)
@@ -222,7 +222,7 @@ security_headers = SecurityHeaders()
 class AuditLogger:
     """審計日誌記錄器"""
     
-    def __init__(self, max_logs: int = 10000):
+    def __init__(self, max_logs: int = 10000) -> None:
         self.logs = []
         self.max_logs = max_logs
         self._lock = threading.Lock()
@@ -293,7 +293,7 @@ class AuditLogger:
         
         return sanitized
     
-    def _alert(self, entry: Dict):
+    def _alert(self, entry: Dict) -> Any:
         """高風險事件告警"""
         # 這裡可以整合 Telegram 通知
         print(f"⚠️ 高風險事件: {entry['event_type']} from {entry['ip']}")
@@ -357,9 +357,9 @@ audit_logger = AuditLogger()
 
 def audit(event_type: str, risk_level: str = 'low'):
     """審計裝飾器"""
-    def decorator(func):
+    def decorator(func) -> Any:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             # 嘗試從參數取得資訊
             user_id = kwargs.get('user_id')
             ip = kwargs.get('ip', 'unknown')
@@ -385,7 +385,7 @@ def audit(event_type: str, risk_level: str = 'low'):
 class IPBlacklist:
     """IP 黑名單管理"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.blacklist = set()
         self.whitelist = set()
         self.temp_blocks = {}  # {ip: unblock_time}
@@ -398,17 +398,17 @@ class IPBlacklist:
         
         self._failures = defaultdict(list)
     
-    def add_to_blacklist(self, ip: str):
+    def add_to_blacklist(self, ip: str) -> None:
         """永久封鎖 IP"""
         with self._lock:
             self.blacklist.add(ip)
     
-    def remove_from_blacklist(self, ip: str):
+    def remove_from_blacklist(self, ip: str) -> bool:
         """解除永久封鎖"""
         with self._lock:
             self.blacklist.discard(ip)
     
-    def add_to_whitelist(self, ip: str):
+    def add_to_whitelist(self, ip: str) -> None:
         """加入白名單"""
         with self._lock:
             self.whitelist.add(ip)
@@ -496,7 +496,7 @@ class SQLInjectionDetector:
         r"xp_cmdshell",  # SQL Server 命令執行
     ]
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.compiled_patterns = [re.compile(p, re.IGNORECASE) for p in self.PATTERNS]
         self.detected_attacks = []
         self._lock = threading.Lock()
@@ -566,7 +566,7 @@ sql_injection_detector = SQLInjectionDetector()
 class SecurityMiddleware:
     """整合安全中間件"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.rate_limiter = rate_limiter
         self.security_headers = security_headers
         self.audit_logger = audit_logger

@@ -27,7 +27,7 @@ import config
 class AIReportHandler(BaseHandler):
     """AI 與報表 API Handler"""
     
-    def handle_request(self, method: str, path: str, params: dict = None):
+    def handle_request(self, method: str, path: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """處理請求"""
         params = params or {}
         
@@ -201,7 +201,7 @@ class AIReportHandler(BaseHandler):
 
 
 # 路由註冊
-def register_routes(router):
+def register_routes(router: Any) -> None:
     """註冊 AI 和報表路由"""
     handler = AIReportHandler()
     

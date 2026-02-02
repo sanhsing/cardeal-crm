@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from .base import BaseHandler
 from models import get_connection
 
-def get_stats(handler, session):
+def get_stats(handler, session) -> Any:
     """取得統計數據（儀表板用）"""
     db_path = BaseHandler.get_db_path(session)
     
@@ -68,7 +68,7 @@ def get_stats(handler, session):
     })
 
 
-def get_sales_report(handler, session):
+def get_sales_report(handler, session) -> Any:
     """取得銷售報表"""
     db_path = BaseHandler.get_db_path(session)
     query = BaseHandler.get_query_params(handler)
@@ -130,7 +130,7 @@ def get_sales_report(handler, session):
     })
 
 
-def get_inventory_report(handler, session):
+def get_inventory_report(handler, session) -> Any:
     """取得庫存報表"""
     db_path = BaseHandler.get_db_path(session)
     
@@ -193,7 +193,7 @@ def get_inventory_report(handler, session):
     })
 
 
-def get_customer_report(handler, session):
+def get_customer_report(handler, session) -> Any:
     """取得客戶分析報表"""
     db_path = BaseHandler.get_db_path(session)
     
@@ -239,7 +239,7 @@ def get_customer_report(handler, session):
     })
 
 
-def get_activity_logs(handler, session):
+def get_activity_logs(handler, session) -> Any:
     """取得活動日誌"""
     db_path = BaseHandler.get_db_path(session)
     query = BaseHandler.get_query_params(handler)

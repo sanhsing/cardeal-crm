@@ -15,7 +15,7 @@ import config
 class DeepAIHandler(BaseHandler):
     """DeepSeek AI API Handler"""
     
-    def handle_request(self, method: str, path: str, params: dict = None):
+    def handle_request(self, method: str, path: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """處理請求"""
         params = params or {}
         
@@ -116,7 +116,7 @@ class DeepAIHandler(BaseHandler):
         return self.json_response(result)
 
 
-def register_routes(router):
+def register_routes(router: Any) -> None:
     """註冊路由"""
     handler = DeepAIHandler()
     

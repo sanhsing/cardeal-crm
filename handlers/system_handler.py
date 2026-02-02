@@ -35,7 +35,7 @@ import config
 class SystemHandler(BaseHandler):
     """系統管理 API Handler"""
     
-    def handle_request(self, method: str, path: str, params: dict = None):
+    def handle_request(self, method: str, path: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """處理請求"""
         params = params or {}
         
@@ -78,7 +78,7 @@ class SystemHandler(BaseHandler):
     # 健康檢查
     # ============================================================
     
-    def _health_check(self):
+    def _health_check(self) -> Dict[str, Any]:
         """健康檢查"""
         checks = {}
         overall_healthy = True
@@ -138,7 +138,7 @@ class SystemHandler(BaseHandler):
     # 系統狀態
     # ============================================================
     
-    def _system_status(self):
+    def _system_status(self) -> Dict[str, Any]:
         """完整系統狀態"""
         status = {
             'timestamp': datetime.now().isoformat(),
@@ -186,7 +186,7 @@ class SystemHandler(BaseHandler):
     # 性能指標
     # ============================================================
     
-    def _performance_metrics(self):
+    def _performance_metrics(self) -> Dict[str, Any]:
         """性能指標"""
         try:
             dashboard = get_performance_dashboard(config.MASTER_DB)
@@ -200,7 +200,7 @@ class SystemHandler(BaseHandler):
                 'error': str(e)
             })
     
-    def _slow_queries(self):
+    def _slow_queries(self) -> Dict[str, Any]:
         """慢查詢日誌"""
         return self.json_response({
             'success': True,
@@ -208,7 +208,7 @@ class SystemHandler(BaseHandler):
             'logs': slow_query_logger.get_logs(50)
         })
     
-    def _index_suggestions(self):
+    def _index_suggestions(self) -> Dict[str, Any]:
         """索引建議"""
         try:
             analyzer = QueryAnalyzer(config.MASTER_DB)
@@ -230,7 +230,7 @@ class SystemHandler(BaseHandler):
     # 安全狀態
     # ============================================================
     
-    def _security_status(self):
+    def _security_status(self) -> Dict[str, Any]:
         """安全狀態"""
         return self.json_response({
             'success': True,
@@ -245,7 +245,7 @@ class SystemHandler(BaseHandler):
             'audit': audit_logger.get_stats()
         })
     
-    def _audit_logs(self, params: dict):
+    def _audit_logs(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """審計日誌查詢"""
         event_type = params.get('event_type')
         user_id = params.get('user_id')
@@ -270,14 +270,14 @@ class SystemHandler(BaseHandler):
     # 快取管理
     # ============================================================
     
-    def _cache_stats(self):
+    def _cache_stats(self) -> Dict[str, Any]:
         """快取統計"""
         return self.json_response({
             'success': True,
             'stats': cache_service.cache_stats()
         })
     
-    def _clear_cache(self):
+    def _clear_cache(self) -> Dict[str, Any]:
         """清除快取"""
         cache_service.cache_clear()
         return self.json_response({
@@ -289,7 +289,7 @@ class SystemHandler(BaseHandler):
     # API 文檔
     # ============================================================
     
-    def _api_docs(self):
+    def _api_docs(self) -> Dict[str, Any]:
         """API 文檔"""
         docs = {
             'version': '5.1.0',
@@ -345,7 +345,7 @@ class SystemHandler(BaseHandler):
 
 
 # 路由註冊
-def register_routes(router):
+def register_routes(router: Any) -> None:
     """註冊系統管理路由"""
     handler = SystemHandler()
     

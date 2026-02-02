@@ -2,6 +2,8 @@
 車行寶 CRM v5.1 - Models 模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 
 # 資料庫核心
 from .database import get_connection, log_error

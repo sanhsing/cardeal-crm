@@ -269,7 +269,7 @@ def init_master_db() -> bool:
     return True
 
 
-def init_tenant_database(tenant_code, admin_phone='0900000000', 
+def init_tenant_database(tenant_code: str, admin_phone='0900000000', 
                          admin_password='1234', admin_name='老闆'):
     """初始化租戶資料庫"""
     db_path = os.path.join(config.DATA_DIR, f'tenant_{tenant_code}.db')
@@ -300,7 +300,7 @@ def init_tenant_database(tenant_code, admin_phone='0900000000',
     return db_path
 
 
-def migrate_database(db_path, version):
+def migrate_database(db_path: str, version: int):
     """資料庫遷移（版本升級用）"""
     conn = get_connection(db_path)
     c = conn.cursor()

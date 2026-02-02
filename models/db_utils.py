@@ -197,7 +197,7 @@ def drop_index(db_path: str, index_name: str) -> bool:
         conn.close()
 
 
-def suggest_indexes(db_path):
+def suggest_indexes(db_path: str) -> List[Dict[str, Any]]:
     """建議需要的索引"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -293,7 +293,7 @@ def archive_data(db_path, archive_path, table, date_column, before_date):
 
 # ===== 資料匯出 =====
 
-def export_table_to_sql(db_path, table):
+def export_table_to_sql(db_path, table) -> bytes:
     """匯出表格為 SQL"""
     conn = get_connection(db_path)
     c = conn.cursor()

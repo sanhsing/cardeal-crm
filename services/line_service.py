@@ -2,6 +2,8 @@
 車行寶 CRM v5.0 - LINE 服務模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import json
 import hmac
 import hashlib
@@ -25,7 +27,7 @@ def verify_signature(body: bytes, signature: str) -> bool:
     expected = base64.b64encode(hash_value).decode('utf-8')
     return hmac.compare_digest(signature, expected)
 
-def get_access_token(tenant_id=None):
+def get_access_token(tenant_id=None) -> Any:
     """取得 LINE Access Token"""
     if tenant_id:
         tenant = get_tenant_by_id(tenant_id)

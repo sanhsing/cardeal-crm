@@ -2,6 +2,8 @@
 車行寶 CRM v5.0 - 綠界金流服務模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import hashlib
 import urllib.parse
 from datetime import datetime

@@ -78,7 +78,7 @@ class RequestTrace:
 class MetricsCollector:
     """指標收集器"""
     
-    def __init__(self, max_history: int = 1000):
+    def __init__(self, max_history: int = 1000) -> None:
         self.max_history = max_history
         self._metrics: Dict[str, deque] = {}
         self._counters: Dict[str, int] = {}
@@ -151,7 +151,7 @@ metrics = MetricsCollector()
 class RequestTracer:
     """請求追蹤器"""
     
-    def __init__(self, max_traces: int = 500):
+    def __init__(self, max_traces: int = 500) -> None:
         self.max_traces = max_traces
         self._traces: deque = deque(maxlen=max_traces)
         self._active: Dict[str, RequestTrace] = {}
@@ -227,7 +227,7 @@ tracer = RequestTracer()
 class SystemMonitor:
     """系統監控"""
     
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str = None) -> None:
         self.db_path = db_path
         self._start_time = time.time()
     

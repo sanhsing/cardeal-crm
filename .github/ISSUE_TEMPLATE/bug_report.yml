@@ -1,0 +1,64 @@
+name: 🐛 Bug 回報
+description: 回報問題以幫助我們改進
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感謝您回報問題！請盡可能詳細填寫以下資訊。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug 描述
+      description: 清楚描述這個 bug
+      placeholder: 發生了什麼問題？
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 重現步驟
+      description: 如何重現這個問題？
+      placeholder: |
+        1. 進入 '...'
+        2. 點擊 '...'
+        3. 出現錯誤
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 預期行為
+      description: 應該發生什麼？
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 截圖
+      description: 如果適用，請附上截圖
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 瀏覽器
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 系統版本（如 v5.2）
+      placeholder: v5.2

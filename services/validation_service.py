@@ -25,7 +25,7 @@ class ValidationResult:
     errors: List[str] = field(default_factory=list)
     cleaned_data: Dict[str, Any] = field(default_factory=dict)
     
-    def add_error(self, field: str, message: str):
+    def add_error(self, field: str, message: str) -> None:
         """添加錯誤"""
         self.errors.append(f"{field}: {message}")
         self.valid = False
@@ -149,7 +149,7 @@ class Validators:
 class Schema:
     """資料 Schema"""
     
-    def __init__(self, fields: Dict[str, Dict]):
+    def __init__(self, fields: Dict[str, Dict]) -> None:
         """
         fields: {
             'name': {

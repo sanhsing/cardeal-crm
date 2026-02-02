@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 # 記憶體 Session 存儲
 _sessions = {}
 
-def create_session(user_id, data, tenant_id, expires_hours=24):
+def create_session(user_id, data, tenant_id, expires_hours=24) -> Any:
     """建立 Session"""
     token = secrets.token_hex(32)
     expires_at = datetime.now() + timedelta(hours=expires_hours)
@@ -26,7 +26,7 @@ def create_session(user_id, data, tenant_id, expires_hours=24):
     
     return token
 
-def get_session(token):
+def get_session(token: str) -> Any:
     """取得 Session"""
     if not token or token not in _sessions:
         return None
@@ -41,14 +41,14 @@ def get_session(token):
     
     return session
 
-def delete_session(token):
+def delete_session(token: str) -> bool:
     """刪除 Session"""
     if token in _sessions:
         del _sessions[token]
         return True
     return False
 
-def extend_session(token, hours=24):
+def extend_session(token: str, hours=24):
     """延長 Session"""
     if token in _sessions:
         _sessions[token]['expires_at'] = (datetime.now() + timedelta(hours=hours)).isoformat()
@@ -66,7 +66,7 @@ def cleanup_sessions() -> int:
         del _sessions[token]
     return len(expired)
 
-def log_activity(db_path, user_id, user_name, action, target_type=None, target_id=None, target_name=None, details=''):
+def log_activity(db_path, user_id, user_name, action, target_type=None, target_id=None, target_name=None, details='') -> None:
     """記錄活動日誌"""
     if not db_path:
         return

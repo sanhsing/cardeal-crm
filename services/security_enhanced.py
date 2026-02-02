@@ -47,7 +47,7 @@ class DataEncryptor:
     使用 Fernet（AES-128-CBC + HMAC）加密
     """
     
-    def __init__(self, secret_key: str = None):
+    def __init__(self, secret_key: str = None) -> None:
         """
         Args:
             secret_key: 加密金鑰，不提供則從環境變數讀取
@@ -464,7 +464,7 @@ class SecurityAudit:
     EVENT_DATA_MODIFY = 'data_modify'
     EVENT_SUSPICIOUS = 'suspicious'
     
-    def __init__(self, log_file: str = None):
+    def __init__(self, log_file: str = None) -> None:
         self.log_file = log_file
         self._logs: List[Dict] = []
         self._max_memory_logs = 1000
@@ -567,7 +567,7 @@ def get_security_headers() -> Dict[str, str]:
 def require_auth(func: Callable) -> Callable:
     """需要認證裝飾器"""
     @wraps(func)
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs) -> Any:
         # 檢查認證（假設 self 有 get_current_user 方法）
         user = getattr(self, 'get_current_user', lambda: None)()
         if not user:
@@ -584,7 +584,7 @@ def rate_limit(max_requests: int = 100, window_seconds: int = 60):
     
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             # 取得識別鍵（IP 或 user_id）
             key = kwargs.get('ip', 'unknown')
             now = time.time()

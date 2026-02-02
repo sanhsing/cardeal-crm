@@ -10,7 +10,7 @@ from datetime import datetime
 import config
 from .database import get_connection
 
-def get_tenant_by_code(code):
+def get_tenant_by_code(code: str) -> Any:
     """根據代碼取得租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -20,7 +20,7 @@ def get_tenant_by_code(code):
     return dict(tenant) if tenant else None
 
 
-def get_tenant_by_id(tenant_id):
+def get_tenant_by_id(tenant_id: int) -> Any:
     """根據 ID 取得租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -30,7 +30,7 @@ def get_tenant_by_id(tenant_id):
     return dict(tenant) if tenant else None
 
 
-def get_all_tenants(status='active'):
+def get_all_tenants(status: str = 'active') -> List[Dict[str, Any]]:
     """取得所有租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -40,7 +40,7 @@ def get_all_tenants(status='active'):
     return tenants
 
 
-def create_tenant(code, name, admin_phone, admin_password, admin_name='管理員'):
+def create_tenant(code: str, name: str, admin_phone, admin_password, admin_name='管理員') -> Any:
     """建立新租戶"""
     from .schema import init_tenant_database
     
@@ -68,7 +68,7 @@ def create_tenant(code, name, admin_phone, admin_password, admin_name='管理員
         conn.close()
 
 
-def update_tenant(tenant_id, **kwargs):
+def update_tenant(tenant_id, **kwargs) -> bool:
     """更新租戶資料"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -98,7 +98,7 @@ def update_tenant(tenant_id, **kwargs):
     return {'success': True}
 
 
-def verify_login(code, phone, password):
+def verify_login(code, phone, password) -> bool:
     """驗證登入"""
     tenant = get_tenant_by_code(code)
     if not tenant:
@@ -140,7 +140,7 @@ def verify_login(code, phone, password):
     }
 
 
-def check_plan_features(tenant_id, feature):
+def check_plan_features(tenant_id, feature) -> bool:
     """檢查租戶是否有某功能權限"""
     tenant = get_tenant_by_id(tenant_id)
     if not tenant:

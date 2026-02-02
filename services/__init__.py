@@ -2,6 +2,8 @@
 車行寶 CRM v5.1 - Services 模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 
 # 外部服務
 from . import line_service
@@ -40,3 +42,4 @@ from . import push_service
 from . import validation_service
 from . import monitoring_service
 from . import apm_service
+from . import analytics_service

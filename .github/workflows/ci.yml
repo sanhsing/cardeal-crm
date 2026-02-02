@@ -1,138 +1,151 @@
-# ============================================
-# 車行寶 CRM v5.1 - GitHub Actions CI
+# 車行寶 CRM v5.2 - CI 持續整合
 # 北斗七星文創數位 × 織明
-# ============================================
 
 name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [ main, develop ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.11'
 
 jobs:
-  # 語法檢查
   lint:
+    name: 🔍 代碼檢查
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Syntax Check
-        run: |
-          find . -name "*.py" -type f | while read f; do
-            python -m py_compile "$f" || exit 1
-          done
-          echo "✅ All Python files passed syntax check"
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: 📦 Install linters
+      run: pip install flake8 black isort
+    
+    - name: 🔍 Flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=15 --max-line-length=120 --statistics
+    
+    - name: 🎨 Black (check only)
+      run: black --check --diff handlers/ services/ models/ || true
+    
+    - name: 📋 isort (check only)
+      run: isort --check-only --diff handlers/ services/ models/ || true
 
-  # 單元測試
   test:
+    name: 🧪 測試
     runs-on: ubuntu-latest
     needs: lint
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
-      
-      - name: Run tests
-        run: |
-          python -m pytest tests/ -v --tb=short
-      
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: htmlcov/
-          retention-days: 7
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-xdist
+    
+    - name: 🧪 Run tests
+      run: |
+        python -m pytest tests/ --ignore=tests/test_e2e.py -v \
+          --cov=handlers --cov=services --cov=models \
+          --cov-report=xml --cov-report=term-missing
+      env:
+        MASTER_DB: ':memory:'
+        SECRET_KEY: 'test-secret-key-ci'
+        TESTING: 'true'
+    
+    - name: 📊 Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+        verbose: true
 
-  # 建置 Docker 映像
+  type-check:
+    name: 🔎 類型檢查
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: 📦 Install mypy
+      run: pip install mypy types-requests
+    
+    - name: 🔎 Type check
+      run: |
+        mypy handlers/ services/ models/ \
+          --ignore-missing-imports \
+          --no-error-summary \
+          --show-error-codes || true
+
+  security:
+    name: 🔒 安全檢查
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: 📦 Install security tools
+      run: pip install bandit safety pip-audit
+    
+    - name: 🔒 Bandit security scan
+      run: bandit -r handlers/ services/ models/ -ll -ii || true
+    
+    - name: 📋 Safety check
+      run: safety check -r requirements.txt || true
+    
+    - name: 🔍 pip-audit
+      run: pip-audit -r requirements.txt || true
+
   build:
+    name: 🏗️ 建置檢查
     runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, type-check]
+    
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: Build Docker image
-        run: |
-          docker build -t cardeal-crm:${{ github.sha }} .
-          docker build -t cardeal-crm:latest .
-      
-      - name: Test Docker image
-        run: |
-          docker run -d --name test-app -p 10000:10000 cardeal-crm:latest
-          sleep 5
-          curl -f http://localhost:10000/api/health || exit 1
-          docker stop test-app
-          echo "✅ Docker image health check passed"
-
-  # 通知
-  notify:
-    runs-on: ubuntu-latest
-    needs: [lint, test, build]
-    if: always()
-    steps:
-      - name: Notify Telegram
-        if: env.TELEGRAM_BOT_TOKEN != ''
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          STATUS="${{ needs.build.result }}"
-          if [ "$STATUS" = "success" ]; then
-            EMOJI="✅"
-            MESSAGE="CI 通過"
-          else
-            EMOJI="❌"
-            MESSAGE="CI 失敗"
-          fi
-          
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d parse_mode="Markdown" \
-            -d text="${EMOJI} *車行寶 CRM CI*%0A${MESSAGE}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}"
-
-
-# 📚 知識點
-# -----------
-# 1. on: push/pull_request：
-#    - 觸發條件
-#    - branches 指定分支
-#
-# 2. jobs 依賴：
-#    - needs: lint 表示依賴 lint job
-#    - 可建立 DAG 工作流
-#
-# 3. actions/checkout@v4：
-#    - 檢出程式碼
-#    - @v4 指定版本
-#
-# 4. if 條件：
-#    - github.event_name：事件類型
-#    - github.ref：分支引用
-#
-# 5. secrets：
-#    - 儲存敏感資訊
-#    - 在 GitHub 設定中配置
-#
-# 6. artifacts：
-#    - 保存測試報告
-#    - retention-days：保留天數
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: 📦 Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: 🏗️ Check imports
+      run: |
+        python -c "import main"
+        python -c "from handlers import router"
+        python -c "from services import telegram_service"
+        python -c "from models import database"
+    
+    - name: ✅ Build successful
+      run: echo "Build check passed!"

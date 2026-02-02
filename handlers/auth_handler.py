@@ -9,7 +9,7 @@ from .base import BaseHandler
 from models import verify_login, create_session, create_tenant
 from services import telegram_service
 
-def handle_login(handler):
+def handle_login(handler) -> Dict[str, Any]:
     """處理登入"""
     data = BaseHandler.get_json_body(handler)
     
@@ -48,7 +48,7 @@ def handle_login(handler):
     BaseHandler.send_json(handler, result)
 
 
-def handle_register(handler):
+def handle_register(handler) -> Dict[str, Any]:
     """處理註冊"""
     data = BaseHandler.get_json_body(handler)
     
@@ -95,7 +95,7 @@ def handle_register(handler):
     BaseHandler.send_json(handler, result)
 
 
-def handle_logout(handler):
+def handle_logout(handler) -> Dict[str, Any]:
     """處理登出"""
     from models import delete_session
     
@@ -110,7 +110,7 @@ def handle_logout(handler):
     BaseHandler.send_json(handler, {'success': True})
 
 
-def handle_me(handler):
+def handle_me(handler) -> Dict[str, Any]:
     """取得當前使用者資訊"""
     session = BaseHandler.require_auth(handler)
     if not session:

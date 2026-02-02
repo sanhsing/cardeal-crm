@@ -8,7 +8,7 @@ import json
 from services import line_service
 from models import get_connection
 
-def handle_line(router, body, signature):
+def handle_line(router, body, signature) -> Dict[str, Any]:
     """處理 LINE Webhook"""
     # 驗證簽名
     if not line_service.verify_signature(body, signature):
@@ -27,7 +27,7 @@ def handle_line(router, body, signature):
         print(f"Webhook error: {e}")
         router.send_json({'error': str(e)}, 500)
 
-def process_line_event(event):
+def process_line_event(event) -> Any:
     """處理單個 LINE 事件"""
     event_type = event.get('type')
     
@@ -38,7 +38,7 @@ def process_line_event(event):
     elif event_type == 'unfollow':
         handle_unfollow(event)
 
-def handle_message(event):
+def handle_message(event) -> Dict[str, Any]:
     """處理訊息事件"""
     reply_token = event.get('replyToken')
     user_id = event['source'].get('userId')
@@ -57,7 +57,7 @@ def handle_message(event):
                 {'type': 'text', 'text': '營業時間：週一至週六 9:00-21:00，週日 10:00-18:00'}
             ])
 
-def handle_follow(event):
+def handle_follow(event) -> Dict[str, Any]:
     """處理加入好友事件"""
     user_id = event['source'].get('userId')
     
@@ -92,7 +92,7 @@ def handle_follow(event):
         
         line_service.send_flex(user_id, "歡迎加入", welcome_flex)
 
-def handle_unfollow(event):
+def handle_unfollow(event) -> Dict[str, Any]:
     """處理取消好友事件"""
     user_id = event['source'].get('userId')
     # 可以記錄或做其他處理

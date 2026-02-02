@@ -51,7 +51,7 @@ def verify_csrf_token(token: str, session_id: str) -> bool:
     return True
 
 
-def cleanup_csrf_tokens():
+def cleanup_csrf_tokens() -> int:
     """清理過期的 CSRF Token"""
     now = time.time()
     expired = [k for k, v in _csrf_tokens.items() 
@@ -74,7 +74,7 @@ class RateLimitConfig:
     UPLOAD = (10, 60)      # 10次/分鐘
 
 
-def check_rate_limit(key, limit_type='API'):
+def check_rate_limit(key, limit_type='API') -> bool:
     """檢查是否超過速率限制
     
     Args:
@@ -111,7 +111,7 @@ def check_rate_limit(key, limit_type='API'):
     return True, remaining, window_seconds
 
 
-def rate_limit_response():
+def rate_limit_response() -> Dict[str, Any]:
     """返回 Rate Limit 錯誤回應"""
     return {
         'success': False,
@@ -126,14 +126,14 @@ class Validator:
     """輸入驗證器"""
     
     @staticmethod
-    def phone(value):
+    def phone(value: str) -> bool:
         """驗證台灣手機號碼"""
         if not value:
             return False
         return bool(re.match(r'^09\d{8}$', value))
     
     @staticmethod
-    def email(value):
+    def email(value: str) -> bool:
         """驗證 Email"""
         if not value:
             return True  # Email 可選
@@ -141,21 +141,21 @@ class Validator:
         return bool(re.match(pattern, value))
     
     @staticmethod
-    def password(value, min_length=4):
+    def password(value, min_length=4) -> bool:
         """驗證密碼強度"""
         if not value or len(value) < min_length:
             return False
         return True
     
     @staticmethod
-    def tenant_code(value):
+    def tenant_code(value) -> bool:
         """驗證店家代碼"""
         if not value:
             return False
         return bool(re.match(r'^[a-z0-9_]{3,20}$', value))
     
     @staticmethod
-    def plate(value):
+    def plate(value) -> bool:
         """驗證車牌號碼"""
         if not value:
             return True  # 車牌可選
@@ -169,7 +169,7 @@ class Validator:
         return any(re.match(p, value) for p in patterns)
     
     @staticmethod
-    def amount(value):
+    def amount(value) -> bool:
         """驗證金額"""
         try:
             val = int(value)
@@ -178,14 +178,14 @@ class Validator:
             return False
     
     @staticmethod
-    def date(value):
+    def date(value) -> bool:
         """驗證日期格式 YYYY-MM-DD"""
         if not value:
             return True
         return bool(re.match(r'^\d{4}-\d{2}-\d{2}$', value))
     
     @staticmethod
-    def safe_string(value, max_length=1000):
+    def safe_string(value, max_length=1000) -> bool:
         """驗證安全字串（防 SQL 注入基礎檢查）"""
         if not value:
             return True
@@ -243,7 +243,7 @@ def hash_password(password, salt=None):
     return f"{salt}${hashed}"
 
 
-def verify_password(password, stored_hash):
+def verify_password(password, stored_hash) -> bool:
     """驗證密碼"""
     if '$' not in stored_hash:
         # 舊格式（純 SHA256），向後相容
@@ -263,7 +263,7 @@ def verify_password(password, stored_hash):
 
 # ===== IP 工具 =====
 
-def get_client_ip(handler):
+def get_client_ip(handler) -> Any:
     """取得客戶端 IP"""
     # 檢查代理標頭
     forwarded = handler.headers.get('X-Forwarded-For', '')

@@ -45,7 +45,7 @@ VAPID_SUBJECT = os.environ.get('VAPID_SUBJECT', 'mailto:admin@cardeal.tw')
 class VAPIDManager:
     """VAPID 金鑰管理"""
     
-    def __init__(self, public_key: str = None, private_key: str = None, subject: str = None):
+    def __init__(self, public_key: str = None, private_key: str = None, subject: str = None) -> None:
         self.public_key = public_key or VAPID_PUBLIC_KEY
         self.private_key = private_key or VAPID_PRIVATE_KEY
         self.subject = subject or VAPID_SUBJECT
@@ -102,11 +102,11 @@ vapid = VAPIDManager()
 class SubscriptionManager:
     """推播訂閱管理"""
     
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str) -> None:
         self.db_path = db_path
         self._ensure_table()
     
-    def _ensure_table(self):
+    def _ensure_table(self) -> Dict[str, Any]:
         """確保訂閱表存在"""
         conn = sqlite3.connect(self.db_path)
         conn.execute('''
@@ -221,7 +221,7 @@ class SubscriptionManager:
 class PushSender:
     """推播發送器"""
     
-    def __init__(self, vapid_manager: VAPIDManager = None):
+    def __init__(self, vapid_manager: VAPIDManager = None) -> None:
         self.vapid = vapid_manager or vapid
     
     def send(self, subscription: Dict, payload: Dict, ttl: int = 86400) -> Dict:

@@ -18,7 +18,7 @@ import config
 class MonitoringHandler(BaseHandler):
     """監控 API Handler"""
     
-    def handle_request(self, method: str, path: str, params: dict = None):
+    def handle_request(self, method: str, path: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """處理請求"""
         params = params or {}
         
@@ -58,7 +58,7 @@ class MonitoringHandler(BaseHandler):
         status_code = 200 if health['status'] == 'healthy' else 503
         return self.json_response(health, status_code)
     
-    def _metrics(self, params: dict):
+    def _metrics(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """指標數據"""
         name = params.get('name')
         limit = int(params.get('limit', 100))
@@ -73,7 +73,7 @@ class MonitoringHandler(BaseHandler):
             'data': data
         })
     
-    def _requests(self, params: dict):
+    def _requests(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """請求追蹤"""
         limit = int(params.get('limit', 50))
         data = monitoring_service.tracer.get_recent(limit)
@@ -85,7 +85,7 @@ class MonitoringHandler(BaseHandler):
             'data': data
         })
     
-    def _slow_requests(self, params: dict):
+    def _slow_requests(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """慢請求"""
         threshold = float(params.get('threshold', 500))
         limit = int(params.get('limit', 20))
@@ -99,7 +99,7 @@ class MonitoringHandler(BaseHandler):
         })
 
 
-def register_routes(router):
+def register_routes(router: Any) -> None:
     """註冊路由"""
     handler = MonitoringHandler()
     

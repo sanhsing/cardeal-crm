@@ -4,6 +4,8 @@
 
 功能：圖片上傳、壓縮、存儲、縮圖
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import os
 import io
 import base64
@@ -27,7 +29,7 @@ IMAGE_CONFIG = {
 
 # ===== 儲存路徑 =====
 
-def get_storage_path(tenant_code, category='vehicles'):
+def get_storage_path(tenant_code, category='vehicles') -> Any:
     """取得儲存路徑
     
     結構：data/uploads/{tenant_code}/{category}/{year}/{month}/

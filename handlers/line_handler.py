@@ -28,7 +28,7 @@ class LineWebhookHandler(BaseHandler):
     """LINE Webhook Handler"""
     
     def handle_request(self, method: str, path: str, params: dict = None,
-                       body: bytes = None, headers: dict = None):
+                       body: bytes = None, headers: dict = None) -> Dict[str, Any]:
         """處理 Webhook 請求"""
         
         # POST /api/webhook/line
@@ -220,18 +220,18 @@ class LineWebhookHandler(BaseHandler):
         """處理離開群組事件"""
         return {'type': 'leave', 'handled': True}
     
-    def _log_follow(self, user_id: str):
+    def _log_follow(self, user_id: str) -> Any:
         """記錄追蹤"""
         # TODO: 儲存到資料庫
         pass
     
-    def _log_unfollow(self, user_id: str):
+    def _log_unfollow(self, user_id: str) -> Any:
         """記錄取消追蹤"""
         # TODO: 更新資料庫
         pass
 
 
-def register_routes(router):
+def register_routes(router: Any) -> None:
     """註冊路由"""
     handler = LineWebhookHandler()
     router.add_route('POST', '/api/webhook/line', handler.handle_request)

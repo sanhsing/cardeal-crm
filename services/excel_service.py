@@ -14,7 +14,7 @@ from models import get_connection
 
 # ===== 匯出功能 =====
 
-def export_customers(db_path, format='csv'):
+def export_customers(db_path, format='csv') -> bytes:
     """匯出客戶資料"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -37,7 +37,7 @@ def export_customers(db_path, format='csv'):
     return _generate_csv(headers, rows)
 
 
-def export_vehicles(db_path, status=None):
+def export_vehicles(db_path, status=None) -> bytes:
     """匯出車輛資料"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -65,7 +65,7 @@ def export_vehicles(db_path, status=None):
     return _generate_csv(headers, rows)
 
 
-def export_deals(db_path, start_date=None, end_date=None):
+def export_deals(db_path, start_date=None, end_date=None) -> bytes:
     """匯出交易記錄"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -100,7 +100,7 @@ def export_deals(db_path, start_date=None, end_date=None):
     return _generate_csv(headers, rows)
 
 
-def _generate_csv(headers, rows):
+def _generate_csv(headers, rows) -> Any:
     """產生 CSV 內容"""
     output = io.StringIO()
     writer = csv.writer(output)
@@ -115,7 +115,7 @@ def _generate_csv(headers, rows):
     return output.getvalue()
 
 
-def _format_cell(value):
+def _format_cell(value: Any) -> Any:
     """格式化儲存格"""
     if value is None:
         return ''
@@ -126,7 +126,7 @@ def _format_cell(value):
 
 # ===== 匯入功能 =====
 
-def import_customers(db_path, csv_content, user_id=None):
+def import_customers(db_path, csv_content, user_id=None) -> Tuple[List, List]:
     """匯入客戶資料"""
     reader = csv.DictReader(io.StringIO(csv_content))
     
@@ -177,7 +177,7 @@ def import_customers(db_path, csv_content, user_id=None):
     }
 
 
-def import_vehicles(db_path, csv_content, user_id=None):
+def import_vehicles(db_path, csv_content, user_id=None) -> Tuple[List, List]:
     """匯入車輛資料"""
     reader = csv.DictReader(io.StringIO(csv_content))
     
@@ -232,7 +232,7 @@ def import_vehicles(db_path, csv_content, user_id=None):
     }
 
 
-def _parse_number(value, default=0):
+def _parse_number(value, default=0) -> Any:
     """解析數字"""
     if not value:
         return default
@@ -244,7 +244,7 @@ def _parse_number(value, default=0):
         return default
 
 
-def _map_source(value):
+def _map_source(value) -> Any:
     """對照來源"""
     mapping = {
         '現場': 'walk_in', '現場來店': 'walk_in',
@@ -257,7 +257,7 @@ def _map_source(value):
     return mapping.get(value.strip(), 'other')
 
 
-def _map_level(value):
+def _map_level(value) -> Any:
     """對照等級"""
     mapping = {
         'VIP': 'vip', 'vip': 'vip',

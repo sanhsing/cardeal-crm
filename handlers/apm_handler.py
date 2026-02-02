@@ -102,7 +102,7 @@ class APMHandler(BaseHandler):
         })
 
 
-def register_routes(router) -> None:
+def register_routes(router: Any) -> None:
     """註冊路由"""
     handler = APMHandler()
     

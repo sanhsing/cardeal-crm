@@ -2,6 +2,8 @@
 車行寶 CRM v5.1 - Handlers 模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 
 # 基礎工具
 from .base import BaseHandler
@@ -25,3 +27,4 @@ from . import line_handler
 from . import monitoring_handler
 from . import docs_handler
 from . import apm_handler
+from . import dashboard_handler

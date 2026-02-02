@@ -19,7 +19,7 @@ import config
 class PushHandler(BaseHandler):
     """Push API Handler"""
     
-    def handle_request(self, method: str, path: str, params: dict = None):
+    def handle_request(self, method: str, path: str, params: Optional[Dict] = None) -> Dict[str, Any]:
         """處理請求"""
         params = params or {}
         
@@ -49,12 +49,12 @@ class PushHandler(BaseHandler):
         
         return self.error_response(404, 'Not Found')
     
-    def _get_vapid_key(self):
+    def _get_vapid_key(self) -> Dict[str, Any]:
         """取得 VAPID 公鑰"""
         result = push_service.get_vapid_public_key()
         return self.json_response(result)
     
-    def _subscribe(self, params: dict):
+    def _subscribe(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """訂閱推播"""
         subscription = params.get('subscription', {})
         user_id = params.get('user_id')
@@ -71,7 +71,7 @@ class PushHandler(BaseHandler):
         )
         return self.json_response(result)
     
-    def _unsubscribe(self, params: dict):
+    def _unsubscribe(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """取消訂閱"""
         endpoint = params.get('endpoint', '')
         
@@ -81,7 +81,7 @@ class PushHandler(BaseHandler):
         result = push_service.unsubscribe(config.MASTER_DB, endpoint)
         return self.json_response(result)
     
-    def _send(self, params: dict):
+    def _send(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """發送推播"""
         user_id = params.get('user_id')
         title = params.get('title', '車行寶通知')
@@ -102,7 +102,7 @@ class PushHandler(BaseHandler):
         )
         return self.json_response(result)
     
-    def _broadcast(self, params: dict):
+    def _broadcast(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """廣播推播"""
         title = params.get('title', '車行寶公告')
         body = params.get('body', '')
@@ -121,7 +121,7 @@ class PushHandler(BaseHandler):
         )
         return self.json_response(result)
     
-    def _stats(self):
+    def _stats(self) -> Dict[str, Any]:
         """訂閱統計"""
         manager = push_service.SubscriptionManager(config.MASTER_DB)
         count = manager.count()
@@ -132,7 +132,7 @@ class PushHandler(BaseHandler):
         })
 
 
-def register_routes(router):
+def register_routes(router: Any) -> None:
     """註冊路由"""
     handler = PushHandler()
     

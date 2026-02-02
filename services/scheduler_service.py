@@ -18,7 +18,7 @@ import config
 class Task:
     """任務定義"""
     
-    def __init__(self, name, func, interval_seconds, enabled=True):
+    def __init__(self, name, func, interval_seconds, enabled=True) -> None:
         self.name = name
         self.func = func
         self.interval = interval_seconds
@@ -30,7 +30,7 @@ class Task:
         self.last_error = None
         self.last_duration = 0
     
-    def should_run(self):
+    def should_run(self) -> bool:
         """檢查是否應該執行"""
         if not self.enabled:
             return False
@@ -38,7 +38,7 @@ class Task:
             return True
         return datetime.now() >= self.next_run
     
-    def run(self):
+    def run(self) -> None:
         """執行任務"""
         start_time = time.time()
         try:
@@ -54,7 +54,7 @@ class Task:
             self.next_run = self.last_run + timedelta(seconds=self.interval)
             self.last_duration = (time.time() - start_time) * 1000
     
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """轉為字典"""
         return {
             'name': self.name,
@@ -80,30 +80,30 @@ class Scheduler:
         self.thread = None
         self.lock = threading.Lock()
     
-    def add_task(self, name, func, interval_seconds, enabled=True):
+    def add_task(self, name, func, interval_seconds, enabled=True) -> None:
         """添加任務"""
         with self.lock:
             self.tasks[name] = Task(name, func, interval_seconds, enabled)
     
-    def remove_task(self, name):
+    def remove_task(self, name: Any) -> Any:
         """移除任務"""
         with self.lock:
             if name in self.tasks:
                 del self.tasks[name]
     
-    def enable_task(self, name):
+    def enable_task(self, name: Any) -> Any:
         """啟用任務"""
         with self.lock:
             if name in self.tasks:
                 self.tasks[name].enabled = True
     
-    def disable_task(self, name):
+    def disable_task(self, name: Any) -> Any:
         """停用任務"""
         with self.lock:
             if name in self.tasks:
                 self.tasks[name].enabled = False
     
-    def run_task_now(self, name):
+    def run_task_now(self, name: Any) -> Any:
         """立即執行任務"""
         with self.lock:
             if name in self.tasks:
@@ -121,14 +121,14 @@ class Scheduler:
         self.thread.start()
         logging.info("Scheduler started")
     
-    def stop(self):
+    def stop(self) -> None:
         """停止排程器"""
         self.running = False
         if self.thread:
             self.thread.join(timeout=5)
         logging.info("Scheduler stopped")
     
-    def _run_loop(self):
+    def _run_loop(self) -> Dict[str, Any]:
         """執行迴圈"""
         while self.running:
             with self.lock:
@@ -137,7 +137,7 @@ class Scheduler:
                         task.run()
             time.sleep(1)  # 每秒檢查一次
     
-    def get_status(self):
+    def get_status(self) -> Dict[str, Any]:
         """取得排程器狀態"""
         with self.lock:
             return {
@@ -159,7 +159,7 @@ def scheduled(interval_seconds, name=None):
         def cleanup_job():
             ...
     """
-    def decorator(func):
+    def decorator(func) -> Any:
         task_name = name or func.__name__
         scheduler.add_task(task_name, func, interval_seconds)
         return func
@@ -207,7 +207,7 @@ def register_default_tasks():
 class TaskQueue:
     """簡易任務佇列"""
     
-    def __init__(self, max_workers=2):
+    def __init__(self, max_workers=2) -> None:
         self.queue = []
         self.lock = threading.Lock()
         self.workers = []
@@ -227,11 +227,11 @@ class TaskQueue:
             worker.start()
             self.workers.append(worker)
     
-    def stop(self):
+    def stop(self) -> None:
         """停止佇列"""
         self.running = False
     
-    def _worker(self):
+    def _worker(self) -> Dict[str, Any]:
         """工作執行緒"""
         while self.running:
             task = None
@@ -249,7 +249,7 @@ class TaskQueue:
                 time.sleep(0.1)
     
     @property
-    def pending_count(self):
+    def pending_count(self) -> Any:
         """待處理數量"""
         with self.lock:
             return len(self.queue)
