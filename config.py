@@ -7,6 +7,7 @@ from pathlib import Path
 # ===== 應用程式資訊 =====
 APP_NAME = "車行寶 CRM"
 VERSION = "5.2.0"
+THEME = "default"
 
 # ===== 環境設定 =====
 ENV = os.environ.get('ENV', 'development')
@@ -22,6 +23,11 @@ UPLOAD_DIR = DATA_DIR / 'uploads'
 BACKUP_DIR = DATA_DIR / 'backups'
 MASTER_DB = str(DATA_DIR / 'cardeal.db')
 
+# ===== 備份設定 =====
+AUTO_BACKUP_ENABLED = os.environ.get('AUTO_BACKUP_ENABLED', 'true').lower() == 'true'
+BACKUP_RETENTION_DAYS = int(os.environ.get('BACKUP_RETENTION_DAYS', 30))
+BACKUP_NOTIFY = os.environ.get('BACKUP_NOTIFY', 'true').lower() == 'true'
+
 # ===== LINE 設定 =====
 LINE_CHANNEL_SECRET = os.environ.get('LINE_CHANNEL_SECRET', '')
 LINE_CHANNEL_ACCESS_TOKEN = os.environ.get('LINE_CHANNEL_ACCESS_TOKEN', '')
@@ -32,6 +38,7 @@ ECPAY_MERCHANT_ID = os.environ.get('ECPAY_MERCHANT_ID', '3002607')
 ECPAY_HASH_KEY = os.environ.get('ECPAY_HASH_KEY', 'pwFHCqoQZGmho4w6')
 ECPAY_HASH_IV = os.environ.get('ECPAY_HASH_IV', 'EkRm7iFT261dpevs')
 ECPAY_TEST_MODE = os.environ.get('ECPAY_TEST_MODE', 'true').lower() == 'true'
+ECPAY_API_URL = 'https://payment-stage.ecpay.com.tw' if ECPAY_TEST_MODE else 'https://payment.ecpay.com.tw'
 
 # ===== DeepSeek AI 設定 =====
 DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
@@ -62,6 +69,34 @@ RATE_LIMIT_WINDOW = int(os.environ.get('RATE_LIMIT_WINDOW', 60))
 
 # ===== 資料庫設定 =====
 DATABASE_URL = os.environ.get('DATABASE_URL', f'sqlite:///{MASTER_DB}')
+
+# ===== 訂閱方案 =====
+PLANS = {
+    'free': {
+        'name': '免費版',
+        'price': 0,
+        'max_vehicles': 50,
+        'max_customers': 100,
+        'max_users': 2,
+        'features': ['基本功能', '手機版']
+    },
+    'basic': {
+        'name': '基本版',
+        'price': 299,
+        'max_vehicles': 200,
+        'max_customers': 500,
+        'max_users': 5,
+        'features': ['基本功能', '手機版', 'LINE 通知', '報表匯出']
+    },
+    'pro': {
+        'name': '專業版',
+        'price': 599,
+        'max_vehicles': -1,  # 無限
+        'max_customers': -1,
+        'max_users': -1,
+        'features': ['所有功能', 'AI 助手', 'API 存取', '優先支援']
+    }
+}
 
 # 確保目錄存在
 DATA_DIR.mkdir(parents=True, exist_ok=True)
