@@ -7,7 +7,9 @@ from pathlib import Path
 # ===== 應用程式資訊 =====
 APP_NAME = "車行寶 CRM"
 VERSION = "5.2.0"
-THEME = "default"
+
+# ⚠️ THEME 在此只作為「名稱」，不可直接給 template 使用
+THEME_NAME = os.environ.get("THEME", "default")
 
 # ===== 環境設定 =====
 ENV = os.environ.get('ENV', 'development')
@@ -98,7 +100,46 @@ PLANS = {
     }
 }
 
-# 確保目錄存在
+# ===== 主題（Theme）定義 =====
+# template 僅能使用 THEME（dict），不得使用 THEME_NAME
+
+THEMES = {
+    "default": {
+        "primary": "#2563eb",
+        "secondary": "#64748b",
+        "background": "#ffffff",
+        "text": "#0f172a",
+        "muted": "#e5e7eb",
+    },
+    "dark": {
+        "primary": "#38bdf8",
+        "secondary": "#94a3b8",
+        "background": "#020617",
+        "text": "#e5e7eb",
+        "muted": "#334155",
+    },
+}
+
+if THEME_NAME not in THEMES:
+    raise RuntimeError(
+        f"[CONFIG ERROR] Unknown THEME '{THEME_NAME}'. "
+        f"Available themes: {', '.join(THEMES.keys())}"
+    )
+
+# ✅ 這是 template 要用的 THEME
+THEME = THEMES[THEME_NAME]
+
+# ===== 啟動期治理檢查（Fail Fast） =====
+def _config_self_check():
+    assert isinstance(THEME, dict), "THEME must be a dict"
+    assert "primary" in THEME, "THEME.primary is required"
+    assert isinstance(PORT, int), "PORT must be int"
+    if ENV == "production" and SECRET_KEY.startswith("dev-"):
+        raise RuntimeError("SECRET_KEY must be set in production")
+
+_config_self_check()
+
+# ===== 確保目錄存在 =====
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
