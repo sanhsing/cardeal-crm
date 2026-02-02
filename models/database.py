@@ -2,19 +2,21 @@
 車行寶 CRM v5.0 - 資料庫模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union
+from sqlite3 import Connection, Row
 import sqlite3
 import hashlib
 import os
 from datetime import datetime
 import config
 
-def get_connection(db_path):
+def get_connection(db_path: str) -> Connection:
     """取得資料庫連線"""
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_master_db():
+def init_master_db() -> bool:
     """初始化主資料庫"""
     os.makedirs(config.DATA_DIR, exist_ok=True)
     conn = get_connection(config.MASTER_DB)
@@ -65,13 +67,13 @@ def init_master_db():
     conn.close()
     return True
 
-def get_tenant_db_path(tenant_id):
+def get_tenant_db_path(tenant_id: Union[int, str]) -> str:
     """取得租戶資料庫路徑"""
     if isinstance(tenant_id, int):
         return os.path.join(config.DATA_DIR, f'tenant_{tenant_id}.db')
     return os.path.join(config.DATA_DIR, f'tenant_{tenant_id}.db')
 
-def get_tenant_by_code(code):
+def get_tenant_by_code(code: str) -> Optional[Dict[str, Any]]:
     """根據代碼取得租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -80,7 +82,7 @@ def get_tenant_by_code(code):
     conn.close()
     return dict(tenant) if tenant else None
 
-def get_tenant_by_id(tenant_id):
+def get_tenant_by_id(tenant_id: int) -> Optional[Dict[str, Any]]:
     """根據 ID 取得租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -89,7 +91,7 @@ def get_tenant_by_id(tenant_id):
     conn.close()
     return dict(tenant) if tenant else None
 
-def create_tenant(code, name, admin_phone, admin_password, admin_name='管理員'):
+def create_tenant(code: str, name: str, admin_phone: str, admin_password: str, admin_name: str ='管理員'):
     """建立新租戶"""
     conn = get_connection(config.MASTER_DB)
     c = conn.cursor()
@@ -111,7 +113,7 @@ def create_tenant(code, name, admin_phone, admin_password, admin_name='管理員
     finally:
         conn.close()
 
-def verify_login(code, phone, password):
+def verify_login(code: str, phone: str, password: str) -> Optional[Dict[str, Any]]:
     """驗證登入"""
     tenant = get_tenant_by_code(code)
     if not tenant:
@@ -145,7 +147,7 @@ def verify_login(code, phone, password):
         'plan_expires': tenant['plan_expires']
     }
 
-def init_tenant_database(tenant_code, admin_phone='0900000000', admin_password='1234', admin_name='老闆'):
+def init_tenant_database(tenant_code: str, admin_phone: str = '0900000000', admin_password: str = '1234', admin_name: str = '老闆') -> str:
     """初始化租戶資料庫"""
     db_path = get_tenant_db_path(tenant_code)
     conn = get_connection(db_path)
@@ -329,7 +331,7 @@ def init_tenant_database(tenant_code, admin_phone='0900000000', admin_password='
     conn.close()
     return db_path
 
-def log_error(error_type, message, details='', tenant_id=None):
+def log_error(error_type: str, message: str, details: str = '', tenant_id: Optional[int] = None) -> None:
     """記錄錯誤"""
     try:
         conn = get_connection(config.MASTER_DB)

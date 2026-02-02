@@ -4,6 +4,8 @@
 
 功能：車輛估價、市場行情參考
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import json
 import urllib.request
 from datetime import datetime, timedelta

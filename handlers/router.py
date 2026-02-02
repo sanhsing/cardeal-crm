@@ -4,6 +4,8 @@
 
 職責：僅負責路由分發，具體邏輯委託給各 handler
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import os
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
@@ -420,3 +422,14 @@ class Router(BaseHTTPRequestHandler):
 #    - text/css：CSS 樣式
 #    - application/javascript：JS 腳本
 #    - image/png：PNG 圖片
+
+
+# 文檔路由
+def _register_docs_routes(router):
+    """註冊文檔路由"""
+    from handlers.docs_handler import DocsHandler
+    handler = DocsHandler()
+    router.add_route('GET', '/api/docs', handler.handle_request)
+    router.add_route('GET', '/api/docs/redoc', handler.handle_request)
+    router.add_route('GET', '/api/docs/openapi.yaml', handler.handle_request)
+    router.add_route('GET', '/api/docs/openapi.json', handler.handle_request)

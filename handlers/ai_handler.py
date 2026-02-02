@@ -4,6 +4,8 @@
 
 XTF任務鏈：D
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 from handlers.base import BaseHandler
 from services import deepseek_service
 from services import ai_service
@@ -43,7 +45,7 @@ class DeepAIHandler(BaseHandler):
         
         return self.error_response(404, 'Not Found')
     
-    def _analyze_price(self, params: dict):
+    def _analyze_price(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """智能車價分析"""
         vehicle = {
             'brand': params.get('brand', ''),
@@ -58,7 +60,7 @@ class DeepAIHandler(BaseHandler):
         result = deepseek_service.analyze_vehicle_price(vehicle)
         return self.json_response(result)
     
-    def _analyze_customer(self, params: dict):
+    def _analyze_customer(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """客戶深度分析"""
         customer = {
             'name': params.get('name', ''),
@@ -74,7 +76,7 @@ class DeepAIHandler(BaseHandler):
         result = deepseek_service.analyze_customer_deep(customer, interactions)
         return self.json_response(result)
     
-    def _generate_script(self, params: dict):
+    def _generate_script(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """話術生成"""
         vehicle = {
             'brand': params.get('brand', ''),
@@ -89,7 +91,7 @@ class DeepAIHandler(BaseHandler):
         result = deepseek_service.generate_sales_script(vehicle, scenario=scenario)
         return self.json_response(result)
     
-    def _market_trend(self, params: dict):
+    def _market_trend(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """市場趨勢"""
         brand = params.get('brand')
         segment = params.get('segment')
@@ -97,7 +99,7 @@ class DeepAIHandler(BaseHandler):
         result = deepseek_service.predict_market_trend(brand, segment)
         return self.json_response(result)
     
-    def _quick_ask(self, params: dict):
+    def _quick_ask(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """快速問答"""
         question = params.get('question', params.get('q', ''))
         context = params.get('context', '')
@@ -108,7 +110,7 @@ class DeepAIHandler(BaseHandler):
         result = deepseek_service.quick_ask(question, context)
         return self.json_response(result)
     
-    def _check_status(self):
+    def _check_status(self) -> Dict[str, Any]:
         """API 狀態"""
         result = deepseek_service.check_api_status()
         return self.json_response(result)

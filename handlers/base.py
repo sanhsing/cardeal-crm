@@ -1,15 +1,23 @@
 """
-車行寶 CRM v5.1 - Handler 基礎工具
+車行寶 CRM v5.2 - Handler 基礎工具
 北斗七星文創數位 × 織明
+
+類型提示完善版本
 """
 import json
 from urllib.parse import parse_qs, urlparse
+from typing import Dict, List, Any, Optional, Union, TYPE_CHECKING
+from http.server import BaseHTTPRequestHandler
+
+if TYPE_CHECKING:
+    from models.session import Session
+
 
 class BaseHandler:
     """Handler 基礎工具類"""
     
     @staticmethod
-    def send_json(handler, data, status=200):
+    def send_json(handler: BaseHTTPRequestHandler, data: Dict[str, Any], status: int = 200) -> None:
         """發送 JSON 回應"""
         handler.send_response(status)
         handler.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -18,7 +26,7 @@ class BaseHandler:
         handler.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
     
     @staticmethod
-    def send_html(handler, html, status=200):
+    def send_html(handler: BaseHTTPRequestHandler, html: str, status: int = 200) -> None:
         """發送 HTML 回應"""
         handler.send_response(status)
         handler.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -26,7 +34,7 @@ class BaseHandler:
         handler.wfile.write(html.encode('utf-8'))
     
     @staticmethod
-    def send_static(handler, content, content_type):
+    def send_static(handler: BaseHTTPRequestHandler, content: Union[str, bytes], content_type: str) -> None:
         """發送靜態資源"""
         handler.send_response(200)
         handler.send_header('Content-Type', content_type)
@@ -38,13 +46,13 @@ class BaseHandler:
             handler.wfile.write(content)
     
     @staticmethod
-    def get_body(handler):
+    def get_body(handler: BaseHTTPRequestHandler) -> bytes:
         """取得請求內容"""
         content_length = int(handler.headers.get('Content-Length', 0))
         return handler.rfile.read(content_length) if content_length > 0 else b''
     
     @staticmethod
-    def get_json_body(handler):
+    def get_json_body(handler: BaseHTTPRequestHandler) -> Dict[str, Any]:
         """取得 JSON 請求內容"""
         try:
             body = BaseHandler.get_body(handler)
@@ -53,17 +61,17 @@ class BaseHandler:
             return {}
     
     @staticmethod
-    def get_query_params(handler):
+    def get_query_params(handler: BaseHTTPRequestHandler) -> Dict[str, List[str]]:
         """取得 URL 查詢參數"""
         return parse_qs(urlparse(handler.path).query)
     
     @staticmethod
-    def get_path(handler):
+    def get_path(handler: BaseHTTPRequestHandler) -> str:
         """取得請求路徑"""
         return urlparse(handler.path).path
     
     @staticmethod
-    def get_session(handler):
+    def get_session(handler: BaseHTTPRequestHandler) -> Optional['Session']:
         """取得當前 Session"""
         from models import get_session
         
@@ -82,42 +90,68 @@ class BaseHandler:
         
         return None
     
-    @staticmethod
-    def require_auth(handler):
-        """要求認證，返回 session 或 None"""
-        session = BaseHandler.get_session(handler)
-        if not session:
-            BaseHandler.send_json(handler, {
-                'success': False, 
-                'error': '請先登入'
-            }, 401)
-            return None
-        return session
+    # === 實例方法（用於子類） ===
     
-    @staticmethod
-    def get_db_path(session):
-        """從 session 取得資料庫路徑"""
-        return session['data']['db_path'] if session else None
+    def json_response(self, data: Dict[str, Any], status: int = 200) -> Dict[str, Any]:
+        """返回 JSON 格式響應數據"""
+        return {'_status': status, '_data': data, **data}
     
-    @staticmethod
-    def get_user_info(session):
-        """從 session 取得使用者資訊"""
-        if not session:
-            return None, None
-        return session['data']['user_id'], session['data']['user_name']
+    def success_response(self, data: Any = None, message: str = None) -> Dict[str, Any]:
+        """成功響應"""
+        response: Dict[str, Any] = {'success': True}
+        if data is not None:
+            response['data'] = data
+        if message:
+            response['message'] = message
+        return response
+    
+    def error_response(self, code: int, message: str, details: Dict = None) -> Dict[str, Any]:
+        """錯誤響應"""
+        response: Dict[str, Any] = {
+            'success': False,
+            'error': message,
+            'code': code
+        }
+        if details:
+            response['details'] = details
+        return response
+    
+    def paginated_response(
+        self, 
+        data: List[Any], 
+        total: int, 
+        page: int, 
+        page_size: int
+    ) -> Dict[str, Any]:
+        """分頁響應"""
+        total_pages = (total + page_size - 1) // page_size if page_size > 0 else 0
+        return {
+            'success': True,
+            'data': data,
+            'pagination': {
+                'total': total,
+                'page': page,
+                'page_size': page_size,
+                'total_pages': total_pages,
+                'has_next': page < total_pages,
+                'has_prev': page > 1
+            }
+        }
+    
+    def handle_request(
+        self, 
+        method: str, 
+        path: str, 
+        params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """處理請求（子類覆寫）"""
+        return self.error_response(501, 'Not Implemented')
 
 
 # 📚 知識點
 # -----------
-# 1. @staticmethod：靜態方法，不需要 self，可直接用類名呼叫
-#    - 用法：BaseHandler.send_json(handler, data)
-#    - 好處：不需實例化，當工具函數用
-#
-# 2. parse_qs：解析 URL 查詢字串
-#    - "?name=john&age=30" → {'name': ['john'], 'age': ['30']}
-#    - 注意：值是 list，因為同一個 key 可能有多個值
-#
-# 3. urlparse：拆解 URL
-#    - urlparse("/api/customers?status=active")
-#    - .path = "/api/customers"
-#    - .query = "status=active"
+# 1. TYPE_CHECKING：僅在類型檢查時導入，避免循環導入
+# 2. Union[str, bytes]：聯合類型，接受多種類型
+# 3. Optional[X]：等同於 Union[X, None]
+# 4. Dict[str, Any]：泛型字典類型
+# 5. BaseHTTPRequestHandler：標準庫 HTTP Handler 類型

@@ -2,6 +2,8 @@
 車行寶 CRM v5.0 - Session 管理模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import secrets
 import sqlite3
 from datetime import datetime, timedelta
@@ -53,7 +55,7 @@ def extend_session(token, hours=24):
         return True
     return False
 
-def cleanup_sessions():
+def cleanup_sessions() -> int:
     """清理過期 Session"""
     now = datetime.now()
     expired = [

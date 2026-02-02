@@ -2,6 +2,8 @@
 車行寶 CRM v5.0 - Webhook 處理模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import json
 from services import line_service
 from models import get_connection

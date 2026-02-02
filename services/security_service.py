@@ -4,6 +4,8 @@
 
 功能：CSRF 防護、Rate Limit、輸入驗證、XSS 防護
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import hashlib
 import hmac
 import secrets
@@ -18,7 +20,7 @@ from html import escape
 _csrf_tokens = {}
 CSRF_TOKEN_EXPIRY = 3600  # 1小時
 
-def generate_csrf_token(session_id):
+def generate_csrf_token(session_id: str) -> str:
     """產生 CSRF Token"""
     token = secrets.token_hex(32)
     _csrf_tokens[token] = {
@@ -28,7 +30,7 @@ def generate_csrf_token(session_id):
     return token
 
 
-def verify_csrf_token(token, session_id):
+def verify_csrf_token(token: str, session_id: str) -> bool:
     """驗證 CSRF Token"""
     if not token or token not in _csrf_tokens:
         return False

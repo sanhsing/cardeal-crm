@@ -39,3 +39,4 @@ from . import deepseek_service
 from . import push_service
 from . import validation_service
 from . import monitoring_service
+from . import apm_service

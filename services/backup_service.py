@@ -2,6 +2,8 @@
 車行寶 CRM v5.0 - 備份服務模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import os
 import shutil
 import glob
@@ -10,7 +12,7 @@ import config
 from models import get_connection
 from services import telegram_service
 
-def ensure_backup_dir():
+def ensure_backup_dir() -> str:
     """確保備份目錄存在"""
     os.makedirs(config.BACKUP_DIR, exist_ok=True)
 

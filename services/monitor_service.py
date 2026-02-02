@@ -4,6 +4,8 @@
 
 功能：效能指標收集、健康檢查、系統狀態監控
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import os
 import time
 import threading
@@ -245,7 +247,7 @@ class SystemStatus:
     """系統狀態監控"""
     
     @staticmethod
-    def get_status():
+    def get_status() -> Dict[str, Any]:
         """取得系統狀態"""
         return {
             'app': {
@@ -275,22 +277,22 @@ metrics = MetricsCollector()
 health_checker = HealthChecker()
 
 
-def get_health():
+def get_health() -> Dict[str, Any]:
     """取得健康狀態"""
     return health_checker.run_checks()
 
 
-def get_metrics():
+def get_metrics() -> Dict[str, Any]:
     """取得效能指標"""
     return metrics.get_metrics()
 
 
-def get_status():
+def get_status() -> Dict[str, Any]:
     """取得系統狀態"""
     return SystemStatus.get_status()
 
 
-def get_full_status():
+def get_full_status() -> Dict[str, Any]:
     """取得完整狀態（健康 + 指標 + 系統）"""
     return {
         'health': get_health(),

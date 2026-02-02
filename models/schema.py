@@ -4,6 +4,8 @@
 
 所有表結構集中管理，方便維護和升級
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import hashlib
 import os
 import config
@@ -252,7 +254,7 @@ TENANT_INDEXES = [
 ]
 
 
-def init_master_db():
+def init_master_db() -> bool:
     """初始化主資料庫"""
     os.makedirs(config.DATA_DIR, exist_ok=True)
     

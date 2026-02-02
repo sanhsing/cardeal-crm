@@ -4,6 +4,8 @@
 
 功能：請求/回應處理管道（壓縮、日誌、錯誤處理）
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import gzip
 import json
 import time
@@ -231,7 +233,7 @@ def timed(func):
 class RequestContext:
     """請求上下文（存儲請求相關資訊）"""
     
-    def __init__(self, handler):
+    def __init__(self, handler: Any) -> None:
         self.start_time = time.time()
         self.handler = handler
         self.ip = security_service.get_client_ip(handler)

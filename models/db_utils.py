@@ -4,6 +4,8 @@
 
 功能：資料庫診斷、優化、維護
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import os
 import sqlite3
 from datetime import datetime
@@ -11,7 +13,7 @@ from .database import get_connection
 
 # ===== 資料庫診斷 =====
 
-def analyze_database(db_path):
+def analyze_database(db_path: str) -> Dict[str, Any]:
     """分析資料庫狀態"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -69,7 +71,7 @@ def analyze_database(db_path):
     return result
 
 
-def explain_query(db_path, sql, params=()):
+def explain_query(db_path: str, sql: str, params: tuple = ()) -> Dict[str, Any]:
     """分析查詢執行計劃"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -86,7 +88,7 @@ def explain_query(db_path, sql, params=()):
     }
 
 
-def _analyze_query_plan(plan):
+def _analyze_query_plan(plan: List[Tuple]) -> Dict[str, Any]:
     """分析查詢計劃並給出建議"""
     suggestions = []
     
@@ -112,7 +114,7 @@ def _analyze_query_plan(plan):
 
 # ===== 資料庫優化 =====
 
-def optimize_database(db_path):
+def optimize_database(db_path: str) -> Dict[str, Any]:
     """優化資料庫"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -136,7 +138,7 @@ def optimize_database(db_path):
     }
 
 
-def vacuum_database(db_path):
+def vacuum_database(db_path: str) -> Dict[str, Any]:
     """壓縮資料庫（回收空間）"""
     original_size = os.path.getsize(db_path)
     
@@ -158,7 +160,7 @@ def vacuum_database(db_path):
 
 # ===== 索引管理 =====
 
-def create_index(db_path, table, columns, unique=False):
+def create_index(db_path: str, table: str, columns: List[str], unique: bool = False) -> bool:
     """建立索引"""
     conn = get_connection(db_path)
     c = conn.cursor()
@@ -180,7 +182,7 @@ def create_index(db_path, table, columns, unique=False):
         conn.close()
 
 
-def drop_index(db_path, index_name):
+def drop_index(db_path: str, index_name: str) -> bool:
     """刪除索引"""
     conn = get_connection(db_path)
     c = conn.cursor()

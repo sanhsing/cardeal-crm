@@ -10,6 +10,8 @@ API 端點：
 - /api/system/audit - 審計日誌
 - /api/system/docs - API 文檔
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import json
 import time
 import os

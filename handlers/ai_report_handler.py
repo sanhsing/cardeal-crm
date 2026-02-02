@@ -14,6 +14,8 @@ API 端點：
 - /api/reports/leaderboard - 排行榜
 - /api/reports/export - Excel 匯出
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import json
 from datetime import datetime
 from urllib.parse import parse_qs
@@ -43,7 +45,7 @@ class AIReportHandler(BaseHandler):
     # AI API
     # ============================================================
     
-    def _handle_ai(self, method: str, path: str, params: dict):
+    def _handle_ai(self, method: str, path: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """處理 AI API"""
         db_path = self.get_tenant_db()
         
@@ -95,7 +97,7 @@ class AIReportHandler(BaseHandler):
     # 報表 API
     # ============================================================
     
-    def _handle_reports(self, method: str, path: str, params: dict):
+    def _handle_reports(self, method: str, path: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """處理報表 API"""
         db_path = self.get_tenant_db()
         

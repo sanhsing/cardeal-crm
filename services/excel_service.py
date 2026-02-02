@@ -4,6 +4,8 @@
 
 功能：匯入/匯出 Excel 檔案
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import csv
 import io
 import json
@@ -268,7 +270,7 @@ def _map_level(value):
 
 # ===== 模板產生 =====
 
-def generate_customer_template():
+def generate_customer_template() -> bytes:
     """產生客戶匯入模板"""
     headers = ['姓名', '電話', '電話2', 'Email', '地址', '來源', '等級', '備註']
     example = ['王小明', '0912345678', '', 'test@example.com', '台北市...', '現場來店', '一般', '對 Toyota 有興趣']
@@ -282,7 +284,7 @@ def generate_customer_template():
     return output.getvalue()
 
 
-def generate_vehicle_template():
+def generate_vehicle_template() -> bytes:
     """產生車輛匯入模板"""
     headers = ['車牌', '品牌', '型號', '年份', '顏色', '里程', '購入日期', '購入價', '整備費', '定價', '底價']
     example = ['ABC-1234', 'Toyota', 'Altis', '2020', '白色', '50000', '2026-01-15', '450000', '30000', '520000', '480000']

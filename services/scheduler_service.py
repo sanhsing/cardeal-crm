@@ -4,6 +4,8 @@
 
 功能：定時任務、背景執行、任務佇列
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import time
 import threading
 import logging
@@ -72,7 +74,7 @@ class Task:
 class Scheduler:
     """排程器"""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.tasks = {}
         self.running = False
         self.thread = None
@@ -109,7 +111,7 @@ class Scheduler:
                 return True
         return False
     
-    def start(self):
+    def start(self) -> None:
         """啟動排程器"""
         if self.running:
             return
@@ -217,7 +219,7 @@ class TaskQueue:
         with self.lock:
             self.queue.append((func, args, kwargs))
     
-    def start(self):
+    def start(self) -> None:
         """啟動工作執行緒"""
         self.running = True
         for i in range(self.max_workers):

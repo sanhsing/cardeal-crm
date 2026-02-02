@@ -8,6 +8,8 @@ API 端點：
 - GET /api/monitoring/metrics - 指標數據
 - GET /api/monitoring/requests - 請求追蹤
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 from handlers.base import BaseHandler
 from services import monitoring_service
 import config
@@ -42,7 +44,7 @@ class MonitoringHandler(BaseHandler):
         
         return self.error_response(404, 'Not Found')
     
-    def _dashboard(self):
+    def _dashboard(self) -> Dict[str, Any]:
         """監控儀表板"""
         dashboard = monitoring_service.get_dashboard(config.MASTER_DB)
         return self.json_response({
@@ -50,7 +52,7 @@ class MonitoringHandler(BaseHandler):
             'data': dashboard
         })
     
-    def _health(self):
+    def _health(self) -> Dict[str, Any]:
         """健康檢查"""
         health = monitoring_service.get_health_check(config.MASTER_DB)
         status_code = 200 if health['status'] == 'healthy' else 503

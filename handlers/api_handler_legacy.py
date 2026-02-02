@@ -2,6 +2,8 @@
 車行寶 CRM v5.0 - API 處理模組
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import json
 import sqlite3
 from models import get_connection, log_activity

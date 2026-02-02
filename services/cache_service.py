@@ -4,6 +4,8 @@
 
 功能：記憶體快取、LRU 策略、TTL 過期
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import time
 import threading
 from collections import OrderedDict
@@ -42,7 +44,7 @@ class LRUCache:
             self.cache.move_to_end(key)
             return value
     
-    def set(self, key, value, ttl=None):
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
         """設定快取值"""
         with self.lock:
             if ttl is None:
@@ -60,7 +62,7 @@ class LRUCache:
             
             self.cache[key] = (value, expiry)
     
-    def delete(self, key):
+    def delete(self, key: str) -> bool:
         """刪除快取"""
         with self.lock:
             if key in self.cache:
@@ -68,7 +70,7 @@ class LRUCache:
                 return True
             return False
     
-    def clear(self):
+    def clear(self) -> None:
         """清空快取"""
         with self.lock:
             self.cache.clear()
@@ -104,7 +106,7 @@ _stats_cache = LRUCache(max_size=100, default_ttl=60)
 _price_cache = LRUCache(max_size=200, default_ttl=1800)
 
 
-def get_cache(name='default'):
+def get_cache(name: str = 'default') -> 'LRUCache':
     """取得快取實例"""
     caches = {
         'default': _cache,
@@ -117,7 +119,7 @@ def get_cache(name='default'):
 
 # ===== 快取裝飾器 =====
 
-def cached(ttl=300, key_prefix='', cache_name='default'):
+def cached(ttl: int = 300, key_prefix: str = '', cache_name: str = 'default') -> Callable:
     """快取裝飾器
     
     用法：
@@ -168,7 +170,7 @@ def cached(ttl=300, key_prefix='', cache_name='default'):
 
 # ===== 快取鍵生成 =====
 
-def make_key(*args, prefix=''):
+def make_key(*args, prefix: str = '') -> str:
     """產生快取鍵"""
     parts = [prefix] if prefix else []
     parts.extend(str(a) for a in args)
@@ -177,18 +179,18 @@ def make_key(*args, prefix=''):
 
 # ===== 常用快取操作 =====
 
-def cache_get(key, default=None):
+def cache_get(key: str, default: Any = None) -> Any:
     """取得快取"""
     result = _cache.get(key)
     return result if result is not None else default
 
 
-def cache_set(key, value, ttl=300):
+def cache_set(key: str, value: Any, ttl: int = 300) -> None:
     """設定快取"""
     _cache.set(key, value, ttl)
 
 
-def cache_delete(key):
+def cache_delete(key: str) -> bool:
     """刪除快取"""
     return _cache.delete(key)
 

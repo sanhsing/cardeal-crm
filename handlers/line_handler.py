@@ -7,6 +7,8 @@
 2. 事件處理（訊息、追蹤、取消追蹤）
 3. 自動回覆
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import os
 import json
 import hmac

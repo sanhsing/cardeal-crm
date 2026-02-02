@@ -2,6 +2,8 @@
 車行寶 CRM v5.1 - 認證處理器
 北斗七星文創數位 × 織明
 """
+from typing import Dict, List, Any, Optional, Union, Callable
+
 import re
 from .base import BaseHandler
 from models import verify_login, create_session, create_tenant

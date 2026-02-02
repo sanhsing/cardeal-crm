@@ -4,6 +4,8 @@
 
 功能：結構化日誌、多輸出目標、日誌輪替
 """
+from typing import Dict, List, Any, Optional, Union, Callable, Tuple
+
 import os
 import sys
 import json
@@ -153,7 +155,7 @@ def setup_logging(
 
 _loggers = {}
 
-def get_logger(name='cardeal'):
+def get_logger(name: str = 'cardeal') -> Any:
     """取得日誌實例"""
     if name not in _loggers:
         _loggers[name] = setup_logging(
@@ -168,25 +170,25 @@ def get_logger(name='cardeal'):
 
 # ===== 便捷函數 =====
 
-def log_info(message, **kwargs):
+def log_info(message: str, **kwargs) -> None:
     """記錄 INFO 日誌"""
     logger = get_logger()
     logger.info(message, extra=kwargs)
 
 
-def log_warning(message, **kwargs):
+def log_warning(message: str, **kwargs) -> None:
     """記錄 WARNING 日誌"""
     logger = get_logger()
     logger.warning(message, extra=kwargs)
 
 
-def log_error(message, exc_info=None, **kwargs):
+def log_error(message: str, exc_info: Any = None, **kwargs) -> None:
     """記錄 ERROR 日誌"""
     logger = get_logger()
     logger.error(message, exc_info=exc_info, extra=kwargs)
 
 
-def log_debug(message, **kwargs):
+def log_debug(message: str, **kwargs) -> None:
     """記錄 DEBUG 日誌"""
     logger = get_logger()
     logger.debug(message, extra=kwargs)
