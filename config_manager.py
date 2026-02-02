@@ -235,6 +235,7 @@ THEME = {
     'primary': '#1e3a5f',
     'primary_light': '#2d4a6f',
     'accent': '#ee6c4d',
+    'accent_hover': '#ff7a5c',
     'success': '#10b981',
     'warning': '#f59e0b',
     'error': '#ef4444',
