@@ -1,0 +1,104 @@
+# ============================================
+# 車行寶 CRM v5.1 - Docker Compose
+# 北斗七星文創數位 × 織明
+# ============================================
+
+version: '3.8'
+
+services:
+  # 主應用
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cardeal-crm
+    restart: unless-stopped
+    ports:
+      - "${PORT:-10000}:10000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - ENV=${ENV:-production}
+      - DEBUG=${DEBUG:-false}
+      - PORT=10000
+      - DATA_DIR=/app/data
+      # LINE 設定
+      - LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET:-}
+      - LINE_CHANNEL_ACCESS_TOKEN=${LINE_CHANNEL_ACCESS_TOKEN:-}
+      # ECPay 設定
+      - ECPAY_MERCHANT_ID=${ECPAY_MERCHANT_ID:-}
+      - ECPAY_HASH_KEY=${ECPAY_HASH_KEY:-}
+      - ECPAY_HASH_IV=${ECPAY_HASH_IV:-}
+      - ECPAY_TEST_MODE=${ECPAY_TEST_MODE:-true}
+      # Telegram 設定
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # 備份服務（可選）
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cardeal-backup
+    restart: "no"
+    volumes:
+      - ./data:/app/data
+      - ./backups:/backups
+    environment:
+      - DATA_DIR=/app/data
+    entrypoint: ["python", "-c", "from services.backup_service import backup_all; backup_all()"]
+    profiles:
+      - backup
+
+# 持久化卷
+volumes:
+  data:
+  logs:
+
+# 網路
+networks:
+  default:
+    name: cardeal-network
+
+
+# 📚 知識點
+# -----------
+# 1. version: '3.8'：
+#    - Compose 檔案版本
+#    - 決定可用功能
+#
+# 2. restart: unless-stopped：
+#    - 自動重啟（除非手動停止）
+#    - 適合生產環境
+#
+# 3. volumes：
+#    - 持久化資料
+#    - 容器重建後資料不丟失
+#
+# 4. environment：
+#    - ${VAR:-default}：環境變數或預設值
+#    - 從 .env 讀取
+#
+# 5. healthcheck：
+#    - 容器內健康檢查
+#    - 配合 restart 自動恢復
+#
+# 6. logging：
+#    - json-file：標準 JSON 日誌
+#    - max-size/max-file：日誌輪替
+#
+# 7. profiles：
+#    - 可選服務
+#    - docker-compose --profile backup up

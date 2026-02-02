@@ -1,0 +1,53 @@
+# ============================================
+# 車行寶 CRM v5.1 - Git 忽略規則
+# ============================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+
+# 虛擬環境
+.env
+.venv/
+venv/
+ENV/
+
+# 資料和日誌
+data/
+logs/
+*.db
+*.log
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# 測試和覆蓋率
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Docker
+*.tar
+
+# 備份
+*.bak
+*.backup
+backups/
