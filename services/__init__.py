@@ -43,3 +43,10 @@ from . import validation_service
 from . import monitoring_service
 from . import apm_service
 from . import analytics_service
+
+# P11-P15 新增服務
+from . import i18n_service
+from . import redis_service
+from . import prediction_service
+from . import postgres_service
+

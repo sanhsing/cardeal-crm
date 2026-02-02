@@ -28,3 +28,8 @@ from . import monitoring_handler
 from . import docs_handler
 from . import apm_handler
 from . import dashboard_handler
+
+# P11-P15 新增 Handlers
+from . import i18n_handler
+from . import prediction_handler
+
