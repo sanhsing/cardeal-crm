@@ -513,6 +513,137 @@ class PerformanceMonitor:
 _performance_monitor = PerformanceMonitor()
 
 
+# ============================================================
+# 慢查詢記錄器
+# ============================================================
+
+class SlowQueryLogger:
+    """慢查詢記錄器"""
+    
+    def __init__(self, threshold_ms: float = 100.0):
+        self.threshold_ms = threshold_ms
+        self._logs: List[Dict] = []
+        self._stats = {
+            'total_queries': 0,
+            'slow_queries': 0,
+            'avg_time_ms': 0.0,
+            'max_time_ms': 0.0
+        }
+    
+    def log(self, query: str, duration_ms: float, params: tuple = None):
+        """記錄查詢"""
+        self._stats['total_queries'] += 1
+        
+        # 更新平均時間
+        total = self._stats['avg_time_ms'] * (self._stats['total_queries'] - 1)
+        self._stats['avg_time_ms'] = (total + duration_ms) / self._stats['total_queries']
+        
+        # 更新最大時間
+        if duration_ms > self._stats['max_time_ms']:
+            self._stats['max_time_ms'] = duration_ms
+        
+        # 記錄慢查詢
+        if duration_ms >= self.threshold_ms:
+            self._stats['slow_queries'] += 1
+            self._logs.append({
+                'query': query[:200],
+                'duration_ms': round(duration_ms, 2),
+                'timestamp': datetime.now().isoformat(),
+                'params': str(params)[:100] if params else None
+            })
+            
+            # 只保留最近 100 條
+            if len(self._logs) > 100:
+                self._logs = self._logs[-100:]
+    
+    def get_stats(self) -> Dict:
+        """獲取統計"""
+        return {
+            **self._stats,
+            'slow_rate': round(
+                self._stats['slow_queries'] / max(self._stats['total_queries'], 1) * 100, 2
+            )
+        }
+    
+    def get_logs(self, limit: int = 50) -> List[Dict]:
+        """獲取慢查詢日誌"""
+        return self._logs[-limit:]
+    
+    def clear(self):
+        """清除日誌"""
+        self._logs = []
+        self._stats = {
+            'total_queries': 0,
+            'slow_queries': 0,
+            'avg_time_ms': 0.0,
+            'max_time_ms': 0.0
+        }
+
+
+# 全域慢查詢記錄器
+slow_query_logger = SlowQueryLogger(threshold_ms=100.0)
+
+
+def get_performance_dashboard(db_path: str) -> Dict:
+    """獲取性能儀表板數據"""
+    import os
+    import sqlite3
+    
+    dashboard = {
+        'database': {},
+        'queries': {},
+        'connections': {},
+        'recommendations': []
+    }
+    
+    try:
+        # 資料庫資訊
+        if os.path.exists(db_path):
+            stat = os.stat(db_path)
+            dashboard['database'] = {
+                'path': db_path,
+                'size_mb': round(stat.st_size / 1024 / 1024, 2),
+                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat()
+            }
+            
+            # 表統計
+            conn = sqlite3.connect(db_path)
+            cursor = conn.execute(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
+            )
+            dashboard['database']['table_count'] = cursor.fetchone()[0]
+            
+            # 索引統計
+            cursor = conn.execute(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='index'"
+            )
+            dashboard['database']['index_count'] = cursor.fetchone()[0]
+            conn.close()
+        
+        # 查詢統計
+        dashboard['queries'] = slow_query_logger.get_stats()
+        
+        # 連接池資訊
+        pool = _pools.get(db_path)
+        if pool:
+            dashboard['connections'] = {
+                'pool_size': pool.max_connections,
+                'available': pool._pool.qsize() if hasattr(pool._pool, 'qsize') else 'N/A'
+            }
+        
+        # 建議
+        if dashboard['queries'].get('slow_rate', 0) > 10:
+            dashboard['recommendations'].append('慢查詢比例過高，建議檢查索引')
+        
+        if dashboard['database'].get('size_mb', 0) > 500:
+            dashboard['recommendations'].append('資料庫檔案較大，建議執行 VACUUM')
+        
+    except Exception as e:
+        dashboard['error'] = str(e)
+    
+    return dashboard
+
+
 def get_performance_metrics() -> Dict:
     """取得效能指標"""
     return {
