@@ -1,0 +1,615 @@
+# 車行寶 CRM v5.2 - OpenAPI 規範
+# 北斗七星文創數位 × 織明
+
+openapi: 3.0.3
+info:
+  title: 車行寶 CRM API
+  description: |
+    中古車行客戶關係管理系統 API 文檔
+    
+    ## 功能模組
+    - 客戶管理 (Customers)
+    - 車輛管理 (Vehicles)
+    - 交易管理 (Deals)
+    - AI 智能分析 (AI)
+    - 報表系統 (Reports)
+    - 系統管理 (System)
+    
+    ## 認證方式
+    使用 Session Cookie 或 Bearer Token
+  version: 5.2.0
+  contact:
+    name: 北斗七星文創數位
+    email: admin@cardeal.tw
+  license:
+    name: Proprietary
+    
+servers:
+  - url: https://cardeal-crm.onrender.com
+    description: Production
+  - url: http://localhost:10000
+    description: Development
+
+tags:
+  - name: auth
+    description: 認證相關
+  - name: customers
+    description: 客戶管理
+  - name: vehicles
+    description: 車輛管理
+  - name: deals
+    description: 交易管理
+  - name: ai
+    description: AI 智能分析
+  - name: reports
+    description: 報表系統
+  - name: system
+    description: 系統管理
+
+paths:
+  # ===== 認證 =====
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: 用戶登入
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: demo
+                password:
+                  type: string
+                  example: demo1234
+      responses:
+        '200':
+          description: 登入成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/auth/logout:
+    post:
+      tags: [auth]
+      summary: 用戶登出
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 登出成功
+
+  # ===== 客戶管理 =====
+  /api/customers:
+    get:
+      tags: [customers]
+      summary: 取得客戶列表
+      security:
+        - sessionAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [potential, contacted, interested, negotiating, deal, lost]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListResponse'
+    post:
+      tags: [customers]
+      summary: 創建客戶
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '201':
+          description: 創建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+
+  /api/customers/{id}:
+    get:
+      tags: [customers]
+      summary: 取得單一客戶
+      security:
+        - sessionAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [customers]
+      summary: 更新客戶
+      security:
+        - sessionAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '200':
+          description: 更新成功
+    delete:
+      tags: [customers]
+      summary: 刪除客戶
+      security:
+        - sessionAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 刪除成功
+
+  # ===== 車輛管理 =====
+  /api/vehicles:
+    get:
+      tags: [vehicles]
+      summary: 取得車輛列表
+      security:
+        - sessionAuth: []
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [available, reserved, sold, maintenance]
+        - name: brand
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleListResponse'
+    post:
+      tags: [vehicles]
+      summary: 創建車輛
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCreate'
+      responses:
+        '201':
+          description: 創建成功
+
+  /api/vehicles/{id}:
+    get:
+      tags: [vehicles]
+      summary: 取得單一車輛
+      security:
+        - sessionAuth: []
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleResponse'
+
+  # ===== 交易管理 =====
+  /api/deals:
+    get:
+      tags: [deals]
+      summary: 取得交易列表
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [deals]
+      summary: 創建交易
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DealCreate'
+      responses:
+        '201':
+          description: 創建成功
+
+  # ===== AI 智能分析 =====
+  /api/ai/deep/price:
+    post:
+      tags: [ai]
+      summary: 車價分析
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brand, model, year, mileage]
+              properties:
+                brand:
+                  type: string
+                  example: Toyota
+                model:
+                  type: string
+                  example: Altis
+                year:
+                  type: integer
+                  example: 2020
+                mileage:
+                  type: integer
+                  example: 50000
+      responses:
+        '200':
+          description: 分析結果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIPriceResponse'
+
+  /api/ai/deep/script:
+    post:
+      tags: [ai]
+      summary: 話術生成
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scenario]
+              properties:
+                scenario:
+                  type: string
+                  enum: [greeting, objection, closing, followup]
+                context:
+                  type: string
+      responses:
+        '200':
+          description: 生成的話術
+
+  /api/ai/deep/status:
+    get:
+      tags: [ai]
+      summary: AI 服務狀態
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 狀態資訊
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  provider:
+                    type: string
+                  online:
+                    type: boolean
+
+  # ===== 報表 =====
+  /api/reports/daily:
+    get:
+      tags: [reports]
+      summary: 日報表
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 日報表數據
+
+  /api/reports/weekly:
+    get:
+      tags: [reports]
+      summary: 週報表
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 週報表數據
+
+  /api/reports/monthly:
+    get:
+      tags: [reports]
+      summary: 月報表
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 月報表數據
+
+  # ===== 系統 =====
+  /api/system/health:
+    get:
+      tags: [system]
+      summary: 健康檢查
+      responses:
+        '200':
+          description: 系統健康
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  status:
+                    type: string
+                  checks:
+                    type: object
+
+  /api/system/stats:
+    get:
+      tags: [system]
+      summary: 系統統計
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 統計數據
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    pageSize:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        default: 20
+
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+            username:
+              type: string
+            role:
+              type: string
+
+    CustomerCreate:
+      type: object
+      required: [name, phone]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        phone:
+          type: string
+          pattern: '^09\d{8}$'
+        email:
+          type: string
+          format: email
+        line_id:
+          type: string
+        source:
+          type: string
+        notes:
+          type: string
+        budget_min:
+          type: integer
+        budget_max:
+          type: integer
+
+    CustomerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            phone:
+              type: string
+            status:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+
+    CustomerListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerResponse/properties/data'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    VehicleCreate:
+      type: object
+      required: [brand, model, year, price]
+      properties:
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+          minimum: 1990
+          maximum: 2030
+        mileage:
+          type: integer
+          minimum: 0
+        price:
+          type: integer
+          minimum: 0
+        cost:
+          type: integer
+        color:
+          type: string
+        plate_number:
+          type: string
+
+    VehicleResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+
+    VehicleListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            type: object
+        total:
+          type: integer
+
+    DealCreate:
+      type: object
+      required: [customer_id, vehicle_id, sale_price]
+      properties:
+        customer_id:
+          type: integer
+        vehicle_id:
+          type: integer
+        sale_price:
+          type: integer
+        payment_method:
+          type: string
+          enum: [cash, credit, transfer, loan]
+
+    AIPriceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            estimated_price:
+              type: integer
+            price_range:
+              type: object
+              properties:
+                min:
+                  type: integer
+                max:
+                  type: integer
+            analysis:
+              type: string
+
+  responses:
+    Unauthorized:
+      description: 未授權
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Unauthorized
+    NotFound:
+      description: 資源不存在
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Not found

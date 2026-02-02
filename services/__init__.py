@@ -37,3 +37,5 @@ from . import deepseek_service
 
 # P2: 推播服務
 from . import push_service
+from . import validation_service
+from . import monitoring_service

@@ -22,3 +22,4 @@ from . import ai_report_handler
 from . import system_handler
 from . import push_handler
 from . import line_handler
+from . import monitoring_handler
