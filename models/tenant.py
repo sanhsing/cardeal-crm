@@ -8,6 +8,7 @@ import hashlib
 import os
 from datetime import datetime
 import config
+from pylib.units.tenant_rules import validate_tenant_code
 from .database import get_connection
 
 def get_tenant_by_code(code: str) -> Any:

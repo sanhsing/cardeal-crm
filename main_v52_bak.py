@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-車行寶 CRM v5.3 - 主入口
+車行寶 CRM v5.1 - 主入口
 北斗七星文創數位 × 織明
 
 用法：
@@ -49,11 +49,6 @@ def init_demo_tenant():
             print(f"   店家代碼：demo")
             print(f"   手機號碼：0912345678")
             print(f"   密碼：demo1234")
-
-    # 載入展示資料
-    from seed_demo import seed_demo_data
-    db_path = os.path.join(config.DATA_DIR, 'tenant_demo.db')
-    seed_demo_data(db_path)
 
 def main():
     """主程式"""
