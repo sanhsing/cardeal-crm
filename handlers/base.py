@@ -2,7 +2,7 @@
 車行寶 CRM v5.2 - Handler 基礎工具
 北斗七星文創數位 × 織明
 
-類型提示完善版本
+類型提示完善版本 + require_auth 修復
 """
 import json
 from urllib.parse import parse_qs, urlparse
@@ -11,7 +11,6 @@ from http.server import BaseHTTPRequestHandler
 
 if TYPE_CHECKING:
     from models.session import Session
-
 
 class BaseHandler:
     """Handler 基礎工具類"""
@@ -90,6 +89,32 @@ class BaseHandler:
         
         return None
     
+    # ===== 認證相關（v5.2 deploy 回補） =====
+    
+    @staticmethod
+    def require_auth(handler: BaseHTTPRequestHandler) -> Optional[Dict]:
+        """要求認證，返回 session 或 None（回傳 401）"""
+        session = BaseHandler.get_session(handler)
+        if not session:
+            BaseHandler.send_json(handler, {
+                'success': False, 
+                'error': '請先登入'
+            }, 401)
+            return None
+        return session
+    
+    @staticmethod
+    def get_db_path(session: Dict) -> Optional[str]:
+        """從 session 取得資料庫路徑"""
+        return session['data']['db_path'] if session else None
+    
+    @staticmethod
+    def get_user_info(session: Dict):
+        """從 session 取得使用者資訊"""
+        if not session:
+            return None, None
+        return session['data']['user_id'], session['data']['user_name']
+    
     # === 實例方法（用於子類） ===
     
     def json_response(self, data: Dict[str, Any], status: int = 200) -> Dict[str, Any]:
@@ -150,8 +175,9 @@ class BaseHandler:
 
 # 📚 知識點
 # -----------
-# 1. TYPE_CHECKING：僅在類型檢查時導入，避免循環導入
-# 2. Union[str, bytes]：聯合類型，接受多種類型
-# 3. Optional[X]：等同於 Union[X, None]
-# 4. Dict[str, Any]：泛型字典類型
-# 5. BaseHTTPRequestHandler：標準庫 HTTP Handler 類型
+# 1. require_auth: 認證守門方法，router 中每個需登入的 API 都依賴它
+#    - 從 v5.2 deploy 版遺失於 hotfix2 的類型提示重構中
+#    - 沒有它 → 所有 GET/POST API 會 AttributeError → 502
+# 2. TYPE_CHECKING：僅在類型檢查時導入，避免循環導入
+# 3. Union[str, bytes]：聯合類型，接受多種類型
+# 4. Optional[X]：等同於 Union[X, None]
